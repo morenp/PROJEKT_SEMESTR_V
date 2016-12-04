@@ -6,7 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import model.Registration;
+
 
 public class RegistrationController {
 	
@@ -41,7 +41,7 @@ public class RegistrationController {
 	public void back(ActionEvent event)
 	{	
 		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
-		primaryStage.setScene(Registration.getAncestorScene());
+		primaryStage.setScene(MainController.r.getAncestorScene());
 		primaryStage.show();
 	}
 	
