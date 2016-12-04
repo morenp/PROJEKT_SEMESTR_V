@@ -6,7 +6,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import model.Login;
+
 
 public class UserPanelController {
 
@@ -21,7 +21,7 @@ public class UserPanelController {
 	public void back(ActionEvent event)
 	{	
 		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
-		primaryStage.setScene(Login.getAncestorScene());
+		primaryStage.setScene(MainController.l.getAncestorScene());
 		primaryStage.show();
 	}
 	
