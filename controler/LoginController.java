@@ -8,16 +8,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import mainClasses.User;
-import model.Login;
 import model.Main;
-import model.UserPanel;
+import model.User;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
 public class LoginController {
 
-
+	static User up;
 	//private String user = "user";
 	//private String password = "pass";
 	
@@ -38,35 +36,29 @@ public class LoginController {
 	private Button btnBack;
 
 	public void login(ActionEvent event)
-	{/*
-			String query= "SELECT XMLELEMENT(\"name\",name) || XMLELEMENT(\"last_name\",last_name) as xml_users from users u where u.user_id = 1";
-		    
-		   
-		    String email="";
-		    
-		    String password="";
-		    
+	{
+		// Validator adresu email 
+    	EmailValidator ev = EmailValidator.getInstance();
+    	
+     	// POLE  EMAIL FORMULARZA
+    	String email = txtUserName.getText();
+    	// POLE HAS£O FORMULARZA 
+    	String password = txtPassword.getText();
+		String resp="";// = Main.client.doSearch(query);
+
+		/*
+			String query= "SELECT XMLELEMENT(\"name\",name) || XMLELEMENT(\"last_name\",last_name) as xml_users from users u where u.user_id = 1";	   
+		    String email="";	    
+		    String password="";	    
 		    query = "SELECT XMLELEMENT(\"email\",email) || XMLELEMENT(\"password\",password) as xml_users from users u where u.user_email = "+email;
-		    
-		    
-		    
 		    */
 		
-		 	// POLE  EMAIL FORMULARZA
-	    	String email = txtUserName.getText();
-	    	// POLE HAS£O FORMULARZA 
-	    	String password = txtPassword.getText();
-	    	
-	    	// Validator adresu email 
-	    	EmailValidator ev = EmailValidator.getInstance();
-	    	
-	    	
+			
+			
+
+	 
 	    	
 	    	// Wys³anie do serwera danych logowania
-			
-			
-			String resp;// = Main.client.doSearch(query);
-		
 			if(ev.isValid(email) && !password.equals(""))
 			{
 				resp = Main.getClient().login(email, password);
@@ -79,21 +71,17 @@ public class LoginController {
 			    	}
 			    	else		
 			    	{
-			    		System.out.println(resp);
-			    		
+			    		System.out.println(resp);	    		
 			    		// Utworzenie instancji klasy user
 			    		//User user = new User();
 			    		//Main.setUser(user);
-			    		
-			    		
-				    	
-				        	
+			        	
 						lblStatus.setText("Login Success");
 						System.out.println("Zalogowano");
 							
 						Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
 								
-						UserPanel up = new UserPanel();
+						up = new User();
 						up.setAncestorPage(((Node) event.getSource()).getParent());
 						up.setAncestorScene(((Node) event.getSource()).getScene());
 		
@@ -111,16 +99,14 @@ public class LoginController {
 					lblStatus.setText("B³êdny adres email!");
 				else
 					if(password.equals(""))
-						lblStatus.setText("Nie podano has³a!");
-				
-					
+						lblStatus.setText("Nie podano has³a!");					
 			}
 	}
 	
 	public void back(ActionEvent event)
 	{	
 		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
-		primaryStage.setScene(Login.getAncestorScene());
+		primaryStage.setScene(MainController.l.getAncestorScene());
 		primaryStage.show();
 	}
 	
