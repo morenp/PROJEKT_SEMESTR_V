@@ -1,20 +1,32 @@
 package controler;
 
 import java.io.IOException;
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
-import model.HelpPanel;
+import model.Help;
+import model.Information;
 import model.Login;
+import model.Panel;
 import model.Registration;
-import model.UserPanel;
+import model.Search;
+import model.Timetable;
+
 
 
 public class MainController {
 
+    static Panel hp;
+    static Login l;
+    static Search s;
+    static Registration r;
+    static Timetable tt;
+    static Information i;
+    
+    
+	
 	@FXML
 	private Button btnLogIn;
 	
@@ -22,51 +34,58 @@ public class MainController {
 	private Button btnRegister;
 	
 	@FXML
+	private  Button btnSearch;
+	
+	@FXML
+	private  Button btnTimetable;
+	
+	@FXML
+	private  Button btnInformation;
+	
+	@FXML
 	private  Button btnHelp;
 	
 	@FXML
 	private Button btnExit;
 	
+
 	public void login(ActionEvent event) throws IOException
 	{
-
-		
-		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
-		
-		Login l = new Login();
-		l.setAncestorPage(((Node) event.getSource()).getParent());
-		l.setAncestorScene(((Node) event.getSource()).getScene());
-
-		
-		primaryStage.setScene(l.getScene());
-		primaryStage.show();
+		l = new Login();
+		buttonControl(l,event);
 		
 	}
 	
 	public void register(ActionEvent event) throws IOException
 	{
-		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
+		r = new Registration();
+		buttonControl(r,event);
 		
-		Registration r = new Registration();
-		r.setAncestorPage(((Node) event.getSource()).getParent());
-		r.setAncestorScene(((Node) event.getSource()).getScene());
-
-		
-		primaryStage.setScene(r.getScene());
-		primaryStage.show();
-		
+	}
+	
+	public void search(ActionEvent event)
+	{
+		s = new Search();
+		buttonControl(s,event);
+	}
+	
+	public void timetable(ActionEvent event)
+	{
+		tt = new Timetable(); 
+		buttonControl(tt,event);
+	}
+	
+	
+	public void information(ActionEvent event)
+	{
+		i = new Information(); 
+		buttonControl(i,event);
 	}
 	
 	public void help(ActionEvent event)
 	{
-		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
-		
-		HelpPanel hp = new HelpPanel();
-		hp.setAncestorPage(((Node) event.getSource()).getParent());
-		hp.setAncestorScene(((Node) event.getSource()).getScene());
-
-		primaryStage.setScene(hp.getScene());
-		primaryStage.show();
+		hp = new Help();
+		buttonControl(hp,event);
 	}
 	
 	public void exit(ActionEvent event) throws IOException
@@ -75,6 +94,20 @@ public class MainController {
 		System.exit(0);
 	}
 	
+	
+	
+	// Internal methods
+	private void buttonControl(Panel panel, ActionEvent event)
+	{
+		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
+		panel.setAncestorPage(((Node) event.getSource()).getParent());
+		panel.setAncestorScene(((Node) event.getSource()).getScene());
+		
+		primaryStage.setScene(panel.getScene());
+		primaryStage.show();
+	}
+
+
 
 	
 	
