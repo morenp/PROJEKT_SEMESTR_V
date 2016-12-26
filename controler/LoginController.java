@@ -2,112 +2,95 @@ package controler;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-import javafx.stage.Stage;
+import model.Login;
 import model.Main;
-import model.User;
 
-import org.apache.commons.validator.routines.EmailValidator;
+/** Obsluguje proces logowania */
+public class LoginController extends Controller {
 
-public class LoginController {
 
-	static User up;
-	//private String user = "user";
-	//private String password = "pass";
-	
-	@FXML
-	private Label lblStatus;
+	@FXML private Login login;
 
-	@FXML
-	private Text txtWelcomeText;
-	
-	@FXML
-	private TextField txtUserName;
+	@FXML private Label lblTime;
+    @FXML private Label lblDate;
+    @FXML private Label lblStatus;
+	@FXML private Text txtWelcomeText;
+	@FXML private TextField txtUserName;
+	@FXML private TextField txtPassword;
+	@FXML private Button btnBack;
+	@FXML private Button btnLogIn;
 	
 	
-	@FXML
-	private TextField txtPassword;
+	@FXML 
+    void initialize()
+	{
+		//Main.getMainController().setLoginController(this);
+		Main.setActualController(this);
+		login = new Login();
+	}
 	
-	@FXML
-	private Button btnBack;
-
+    public void back(ActionEvent event)
+    {	
+         super.back(event);
+    }
+	
 	public void login(ActionEvent event)
 	{
-		// Validator adresu email 
-    	EmailValidator ev = EmailValidator.getInstance();
-    	
-     	// POLE  EMAIL FORMULARZA
-    	String email = txtUserName.getText();
-    	// POLE HAS£O FORMULARZA 
+		String email = txtUserName.getText();
     	String password = txtPassword.getText();
-		String resp="";// = Main.client.doSearch(query);
-
-		/*
-			String query= "SELECT XMLELEMENT(\"name\",name) || XMLELEMENT(\"last_name\",last_name) as xml_users from users u where u.user_id = 1";	   
-		    String email="";	    
-		    String password="";	    
-		    query = "SELECT XMLELEMENT(\"email\",email) || XMLELEMENT(\"password\",password) as xml_users from users u where u.user_email = "+email;
-		    */
 		
-			
-			
-
-	 
-	    	
-	    	// Wys³anie do serwera danych logowania
-			if(ev.isValid(email) && !password.equals(""))
-			{
-				resp = Main.getClient().login(email, password);
-			    System.out.println("RESP : " + resp);
-			    if(!resp.equals("wrong_password"))
-			    {
-			    	if(resp.equals("not_exist"))
-			    	{
-			    		lblStatus.setText("U¿ytkownik o podanym adresie email nie istnieje");
-			    	}
-			    	else		
-			    	{
-			    		System.out.println(resp);	    		
-			    		// Utworzenie instancji klasy user
-			    		//User user = new User();
-			    		//Main.setUser(user);
-			        	
-						lblStatus.setText("Login Success");
-						System.out.println("Zalogowano");
-							
-						Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
-								
-						up = new User();
-						up.setAncestorPage(((Node) event.getSource()).getParent());
-						up.setAncestorScene(((Node) event.getSource()).getScene());
+		int loginStatus = login.login(email, password);
 		
-						primaryStage.setScene(up.getScene());
-						primaryStage.show();
-			    	}
-				}
-				else
-				{
-					lblStatus.setText("Wrong Password");
-				}	   
-			}else
+		switch(loginStatus)
+		{
+		
+			case 1:
 			{
-				if(!ev.isValid(email))
-					lblStatus.setText("B³êdny adres email!");
-				else
-					if(password.equals(""))
-						lblStatus.setText("Nie podano has³a!");					
+				lblStatus.setText("Login Success");
+				UserPanelController userPanelController =(UserPanelController) createView("User",event,this);
+				super.getMainController().setUserPanelController(userPanelController);	
+				
+				break;
 			}
+			
+			case -1:
+			{
+				lblStatus.setText("Uzytkownik o podanym adresie email nie istnieje");
+				break;
+			}
+			case -2:
+			{
+				lblStatus.setText("Bledny adres email!");
+				break;
+			}
+			
+			
+			case -3:
+			{
+				lblStatus.setText("Bledne haslo!");	 
+				break;
+			}
+			
+			case -4:
+			{
+				lblStatus.setText("Nie podano hasla!");	
+				break;
+			}
+		
+		}
+    	
 	}
-	
-	public void back(ActionEvent event)
-	{	
-		Stage primaryStage = (Stage)((Node) event.getSource()).getScene().getWindow();
-		primaryStage.setScene(MainController.l.getAncestorScene());
-		primaryStage.show();
+
+	public Login getLogin() {
+		return login;
 	}
-	
+
+	public void setLogin(Login login) {
+		this.login = login;
+	}
 }
+
