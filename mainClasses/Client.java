@@ -11,19 +11,31 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+import controler.MainController;
+import javafx.application.Platform;
+
 public class Client extends Thread implements Runnable
 {
+	String separator = "@@";
 	private String host;
 	private int port;
 	private Socket socket;
 	private BufferedReader in;
 	private PrintWriter out;
+    private MainController mainController;
+    private Clock clock;
+    private Thread clockThread;
 	
 	public Client(String host, int port)
 	{
 		this.host=host;
 		this.port=port;
 		socket = new Socket();
+		
+		// ZEGAR 
+        clock = new Clock();
+        clockThread = new Thread(clock);
+        clockThread.start();
 	}
 	public void run()
 	{
@@ -95,16 +107,90 @@ public class Client extends Thread implements Runnable
 		}
 		return resp;
 	}
+	
 
-	public String login(String email, String password)
+	public boolean isEmailExisting(String email)
 	{
-		out.println("valid " + email + " " +password);
+		out.println("check" + separator + email);
+
+		String resp = getResponse2();
+		System.out.println("F resp::" + resp + "otrzy: " + email);
+		if(resp.equals(email))
+			return true;
+		else
+			return false;
+	}
+
+	public void executeUserProfileUpdate(AppUser appUser)
+	{
 		
-		String resp="";
+		out.println("execute"+ separator + appUser.getUserID()
+							 + separator + appUser.getName()
+							 + separator + appUser.getSecondName()
+							 + separator + appUser.getAddress()
+							 + separator + appUser.getPhoneNumber() );
+	}
+	
+	public void executeUserInsert(AppUser appUser)
+	{
+		out.println("createUser"
+	     +  separator + appUser.getName()
+		 + separator + appUser.getSecondName()
+		 + separator + appUser.getAddress()
+		 + separator + appUser.getPhoneNumber()
+		 + separator + appUser.getEmail()
+		 + separator + appUser.getPassword()
+		);
+	}
+	
+	
+	public String login(String email, String password, String string)
+	{
+		out.println("valid" + separator + email + separator +password + separator+ string);
+		String resp = getResponse();
+		
+		return resp;
+		
+	}
+	
+	
+	private String getResponse2()
+	{
+		String resp="";																								
+		String tmp="";
+
+			while (!tmp.equals("__END__"))
+			{
+				System.out.println("wszedlem");
+				try {
+					
+					tmp = in.readLine();
+					System.out.println("ODCZYTUJE ...: " + tmp);
+					if(!tmp.equals("__END__"))
+					resp += tmp;
+					else
+					{
+						System.out.println("ODCZYTANO : " + resp);
+						System.out.println("koniec :" + tmp);
+						break;
+					}
+					} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+			}
+		
+		return resp;
+	}
+	
+	private String getResponse()
+	{
+		String resp="";																								
 		String tmp="";
 		while (!tmp.equals("__END__"))
 		{
-			System.out.println("odczytuje");
+			System.out.println("wszedlem");
 			try {
 				tmp = in.readLine();
 				System.out.println(tmp);
@@ -120,9 +206,55 @@ public class Client extends Thread implements Runnable
 			}
 			
 		}
-		System.out.println("Poza while");
-	return resp;
+		return resp;
 	}
 	
+	public void setScreenController(MainController controller)
+    {
+    	mainController = controller;
+    }
+	
+    public class Clock implements Runnable
+    {
+        private boolean isRunning;
+        
+        public void stop()
+        {
+            isRunning = false;
+        }
+        
+        @Override
+        public void run() 
+        {
+            isRunning = true;
+            
+            while(isRunning)
+            {
+                Platform.runLater(new Runnable()
+                {
+                    @Override
+                    public void run() 
+                    {
+                        mainController.setTime();
+                    }
+                });
+                
+                try
+                {
+                    Thread.sleep(5000);
+                }
+                catch (InterruptedException ex)
+                {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+
+	public void stopAllTasks() {
+		clockThread.interrupt();
+		this.interrupt();
+		
+	}
 	
 }
