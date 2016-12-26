@@ -1,11 +1,9 @@
 package model;
 
+public class Search extends Model {
 
-public class Search extends Panel{
+	public Search() {
 
-	public Search()
-	{
-			super("Search");
 	}
 
 }

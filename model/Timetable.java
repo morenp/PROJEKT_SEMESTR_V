@@ -1,11 +1,9 @@
 package model;
 
-public class Timetable extends Panel{
+public class Timetable extends Model {
 
 	public Timetable() {
-		super("Timetable");
 
 	}
 
-	
 }
