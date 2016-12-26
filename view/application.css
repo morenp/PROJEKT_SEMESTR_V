@@ -2,7 +2,7 @@
 
 .root 
 {
-     
+	
      -fx-color: #eeeeee;
 }
 
@@ -20,10 +20,9 @@
 }
 
 .label {
-    -fx-font-size: 16px;
-    
-    
-    -fx-effect: dropshadow( gaussian , rgba(255,255,255,0.5) , 0,0,0,1 );
+	-fx-text-fill: #eeeeee;
+    -fx-font-size: 16px;  
+    -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0) , 6, 0.0 , 0 , 2 );
 }
 
 #txtWelcomeText {
@@ -34,4 +33,43 @@
    -fx-fill: #eeeeee;
    -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
    
+}
+
+#lblTime
+{
+   -fx-font-size: 30px;
+   -fx-font-family: "Arial Black";
+   -fx-font-style: italic;
+   -fx-fill: #eeeeee;
+   -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
+}
+
+#lblDate
+{
+   -fx-font-size: 19px;
+   -fx-font-family: "Arial Black";
+   
+   -fx-fill: #eeeeee;
+   -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.4) , 6, 0.0 , 0 , 2 );
+}
+
+#lblNames
+{
+   -fx-font-size: 16px;
+   -fx-font-family: "Arial Black";
+   -fx-font-style: italic;
+   -fx-effect: innershadow( three-pass-box , rgba(0,0,0,0.7) , 6, 0.0 , 0 , 2 );
+}
+#lblPassword
+{
+	-fx-font-size: 12px;
+
+}
+#lblStatus
+{
+	-fx-text-fill: red;
+}
+#lblEmail
+{
+	-fx-font-size: 12px;
 }
