@@ -1,32 +1,28 @@
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-
-import database.*;
 
 
 
 
 public class Server {
 
-	private String host = "127.0.0.1";
+	//private String host = "127.0.0.1";
+	private String host = "192.168.43.242";
+	
     private int port = 5001;
     private InetSocketAddress isa ;
 	private ServerSocket serverSocket; 
 	private boolean serverIsRunning; // flaga dzia³ania servera
 	private Socket conn; // gniazdo 
-	private BufferedReader in; // strumienie gniazda
-	private PrintWriter out;    // komunikacji z klientem
-	private DatabaseConnection oracle; // po³¹czenie z baz¹ danych
+
 	
 	public static void main(String args[])
 	{
+		
 		Server s = new Server();
 		s.run();
 	}
@@ -60,102 +56,32 @@ public class Server {
 			// utworzenie gniazda komunikacji z po³¹czonym klientem 
 			try 
 			{
+				// oczekiwanie na zgloszenie sie klienta
 				conn = serverSocket.accept();
 				
-				in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-				out = new PrintWriter(conn.getOutputStream(),true);
-				
-				System.out.println("Welcome on server!");
-				System.out.println("Connection established");
-				oracle = new DatabaseConnection("127.0.0.1","1521","railway","qwerty");
-				oracle.connect();
-				// obs³uga ¿¹dania
-				while(true)
-				{
-					serviceRequest();
-				}
+				// tworzymy w¹tek dla danego po³¹czenia i uruchamiamy go 
+				(new ServerTCPThread(conn)).start();
 			} 
 			catch(SocketException e)
 			{
 				System.out.println("Roz³¹czono z serwerem");
+			} catch (IOException e) {
+				System.out.println("Zakoñczono po³¹czenie z serwerem");
+				
+			}finally{
+				if(serverSocket != null && serverIsRunning == false)
+					try {
+						serverSocket.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 			}
-			catch (IOException e) 
-			{
-				e.printStackTrace();
-			}
-			finally
-			{
-				oracle.disconnect();
-			}
+
 		}	
 		if(!serverIsRunning)
 		{
 			System.out.println("Sewer zakoñczy³ pracê!");
 		}
 	}
-	
-	// metoda obs³ugi ¿adania
-	private void serviceRequest() throws IOException
-	{
-		
-		String tmp="";; 
-		String query="";
-		while((tmp=in.readLine())!=null)
-		{
-					query+=tmp;
-					if(query!="")
-						break;
-		}
-		
-		String[] info = query.split(" ");
-		System.out.println(info[0]);
-		System.out.println(info[1]);
-		System.out.println(info[2]);
-		
-		
-		
-		
-		if(info[0].equals("valid"))
-		{
-			query="SELECT u.email from users u where u.email = "+"\'"+info[1]+"\'";
-			
-			
-			String email = oracle.executeQuery(query);
-			System.out.println("HERE:"+email);
-			
-			
-			if(email.equals(info[1]+"\n__END__"))
-			{
-				query = "SELECT XMLELEMENT(\"name\",name) || XMLELEMENT(\"last_name\",last_name) as xml_users from users u where u.email = "+"\'"+info[1]+"\'"+"AND u.password = "+ "\'"+info[2]+"\'";                   ;
-				String dane = oracle.executeQuery(query);
-				
-				if(dane.equals("\n__END__") )
-				{
-					out.println("wrong_password"+"\n__END__");
-					System.out.println("wrong_password  + g:"+email + "jj");
-				}
-				else
-				{	
-					out.printf(dane+"\n__END__");
-				}
-			}
-			else
-			{
-				if(email.equals("\n__END__"))
-				{
-					out.println("not_exist"+"\n__END__");
-					System.out.println("not_exist");
-				}
-			}
-		}
-		else
-		{
-			String result = oracle.executeQuery(query);
-			System.out.println("Zwrocono:" + result);
-			out.println(result+"\n__END__");
-			
-		}	
-	}
-	
-	
+
 }

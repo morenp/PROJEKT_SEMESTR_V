@@ -75,7 +75,7 @@ public class DatabaseConnection {
 				answer += res.getString(i);	
 				i++;
 			}
-			answer +="\n__END__";
+			//answer +="\n__END__";
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
