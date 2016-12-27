@@ -18,11 +18,10 @@ public class SearchPanelController extends Controller {
     void initialize()
     {
     	super.initialize();
-    	System.out.println("Stworzony");
     }
     
   public void back(ActionEvent event)
-  {	System.out.println("BACK");
+  {	
        super.back(event);
   }
    	
