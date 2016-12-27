@@ -20,12 +20,18 @@ public class Registration extends Model {
 		
 	}
 	
-	public void register()
+	public boolean register()
 	{
+		
 		System.out.println(appUser);
 		System.out.println(appUser.getPhoneNumber());
-		Main.getClient().executeUserInsert(appUser);
-	
+		
+		String resp = Main.getClient().executeUserInsert(appUser);
+		System.out.println("RESP : " + resp);
+		if(resp.equals("create_complited"))
+			return true;
+		else
+			return false;
 	}
 	public int setName(String name)
 	{	
