@@ -81,40 +81,14 @@ public class Client extends Thread implements Runnable
 		}
 	     
 	}
-	// Wyszukanie w bazie danych 		
-	public String doSearch(String query)
-	{
-		String resp = "";
-		String tmp = "";
-		out.println(query);
-		
-		
-		while (tmp != "__end__" )
-		{
-			try {
-				tmp = in.readLine();
-				if(!tmp.equals("__end__"))
-				resp += tmp;
-				else
-				{
-					break;
-				}
-				} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-		return resp;
-	}
-	
-
 	public boolean isEmailExisting(String email)
 	{
-		out.println("check" + separator + email);
+		Datagram d =new Datagram();
+		d.create("check" + separator + email);
+		out.println(d.toString());
 
 		String resp = getResponse2();
-		System.out.println("F resp::" + resp + "otrzy: " + email);
+		System.out.println("Sprawdzony email : " + email);
 		if(resp.equals(email))
 			return true;
 		else
@@ -131,9 +105,10 @@ public class Client extends Thread implements Runnable
 							 + separator + appUser.getPhoneNumber() );
 	}
 	
-	public void executeUserInsert(AppUser appUser)
+	public String executeUserInsert(AppUser appUser)
 	{
-		out.println("createUser"
+		Datagram d =new Datagram();
+		d.create("createUser"
 	     +  separator + appUser.getName()
 		 + separator + appUser.getSecondName()
 		 + separator + appUser.getAddress()
@@ -141,14 +116,27 @@ public class Client extends Thread implements Runnable
 		 + separator + appUser.getEmail()
 		 + separator + appUser.getPassword()
 		);
+		
+		out.println(d.toString());
+		
+		String resp = getResponse2();
+		return resp;
 	}
 	
 	
 	public String login(String email, String password, String string)
 	{
-		out.println("valid" + separator + email + separator +password + separator+ string);
-		String resp = getResponse();
+
+		Datagram d =new Datagram();
+		d.create("valid" + separator + email + separator +password + separator+ string);
+		out.println(d.toString());
 		
+		
+		String resp = getResponse2();
+		System.out.println("------------------------------------------");
+		System.out.println("Odbieram w Client.java : " + resp);
+		System.out.println("------------------------------------------");
+
 		return resp;
 		
 	}
@@ -157,58 +145,23 @@ public class Client extends Thread implements Runnable
 	private String getResponse2()
 	{
 		String resp="";																								
-		String tmp="";
-
-			while (!tmp.equals("__END__"))
-			{
-				System.out.println("wszedlem");
-				try {
-					
-					tmp = in.readLine();
-					System.out.println("ODCZYTUJE ...: " + tmp);
-					if(!tmp.equals("__END__"))
-					resp += tmp;
-					else
-					{
-						System.out.println("ODCZYTANO : " + resp);
-						System.out.println("koniec :" + tmp);
-						break;
-					}
-					} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-			}
+	
+		try {
+			resp = in.readLine();
+			//in.readLine();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Datagram d = new Datagram();
+		resp = d.unpack(resp);
+		
+		
 		
 		return resp;
+		
+		
 	}
-	
-	private String getResponse()
-	{
-		String resp="";																								
-		String tmp="";
-		while (!tmp.equals("__END__"))
-		{
-			System.out.println("wszedlem");
-			try {
-				tmp = in.readLine();
-				System.out.println(tmp);
-				if(!tmp.equals("__END__"))
-				resp += tmp;
-				else
-				{
-					break;
-				}
-				} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		}
-		return resp;
-	}
-	
 	public void setScreenController(MainController controller)
     {
     	mainController = controller;
