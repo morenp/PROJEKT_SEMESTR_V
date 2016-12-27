@@ -210,10 +210,16 @@ public class RegistrationController extends Controller {
 
 		if(nameOK && lastNameOK && passwordOK && emailOK && addressOK && phoneNumberOK)
 		{
-			registration.register();	
-			UserPanelController userPanelController =(UserPanelController) createView("User",event,this);
-			Main.getMainController().setUserPanelController(userPanelController);
-			System.out.println("Rejestracja przebiegla pomyslnie!");
+			if(registration.register())
+			{
+				UserPanelController userPanelController =(UserPanelController) createView("User",event,this);
+				Main.getMainController().setUserPanelController(userPanelController);
+				System.out.println("Rejestracja przebiegla pomyslnie!");
+			}
+			else
+			{
+				System.out.println("Rejestracja nie powiodla sie!");
+			}
 		}
 		
 	}
