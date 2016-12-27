@@ -25,7 +25,7 @@ public class User extends Model {
 
 	public void createAppUser(String resp) {
 		appUser = createXML(resp);
-		System.out.println("appUSER : " + appUser);
+		System.out.println("appUSER : " + appUser + resp);
 		super.informObservers(); // POINFORMOWANIE OBSERWATOROW
 	}
 	
