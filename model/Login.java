@@ -20,17 +20,10 @@ public class Login extends Model{
 	{
 		// WALIDATOR ADRESU EMAIL 
     	EmailValidator ev = EmailValidator.getInstance();
-    	
-		/*
-			String query= "SELECT XMLELEMENT(\"name\",name) || XMLELEMENT(\"last_name\",last_name) as xml_users from users u where u.user_id = 1";	   
-		    String email="";	    
-		    String password="";	    
-		    query = "SELECT XMLELEMENT(\"email\",email) || XMLELEMENT(\"password\",password) as xml_users from users u where u.user_email = "+email;
-		    */
-		
-	    	
+  	
 			if(ev.isValid(email) && !password.equals(""))
 			{
+			
 				//Login's data send to the server
 				this.resp = Main.getClient().login(email, password,"1");
 
