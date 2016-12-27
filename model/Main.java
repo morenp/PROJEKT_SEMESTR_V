@@ -47,11 +47,14 @@ public class Main extends Application {
 
 		}
 
-		Main.client = new Client("127.0.0.1", 5001);
+		Main.client = new Client("192.168.43.242", 5001);
 		Main.client.start();
 
 		javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader();
+		System.out.println(path());
+		System.out.println(Sdevelop+"MainPanel.fxml");
 		root = loader.load(getClass().getResource(Sdevelop + "MainPanel.fxml").openStream());
+
 		root.setStyle("-fx-background-image: url(" + image + ")");
 		mainController = loader.getController();
 		client.setScreenController(mainController);
