@@ -40,6 +40,8 @@ public class LoginController extends Controller {
 	
 	public void login(ActionEvent event)
 	{
+	
+		
 		String email = txtUserName.getText();
     	String password = txtPassword.getText();
 		
@@ -51,11 +53,22 @@ public class LoginController extends Controller {
 			case 1:
 			{
 				lblStatus.setText("Login Success");
-				UserPanelController userPanelController =(UserPanelController) createView("User",event,this);
-				super.getMainController().setUserPanelController(userPanelController);	
 				
+				if(login.getUser().getAppUser().getStatus().equals("user"))
+				{
+					UserPanelController userPanelController =(UserPanelController) createView("User",event,this);
+					super.getMainController().setUserPanelController(userPanelController);	
+				}
+				else if(login.getUser().getAppUser().getStatus().equals("admin"))
+				{
+					// Miejsce na utwozenie kontrolera odpowiedzialnego za panel administratora
+					System.out.println("Tworze panel administratora");
+				}
+
 				break;
 			}
+			
+			
 			
 			case -1:
 			{
