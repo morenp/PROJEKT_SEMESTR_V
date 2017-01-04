@@ -95,14 +95,22 @@ public class Client extends Thread implements Runnable
 			return false;
 	}
 
-	public void executeUserProfileUpdate(AppUser appUser)
+	public String executeUserProfileUpdate(AppUser appUser)
 	{
 		
-		out.println("execute"+ separator + appUser.getUserID()
-							 + separator + appUser.getName()
-							 + separator + appUser.getSecondName()
-							 + separator + appUser.getAddress()
-							 + separator + appUser.getPhoneNumber() );
+		Datagram d =new Datagram();
+		
+		d.create("execute"+ separator + appUser.getUserID()
+		 + separator + appUser.getName()
+		 + separator + appUser.getSecondName()
+		 + separator + appUser.getAddress()
+		 + separator + appUser.getPhoneNumber() );
+		
+		out.println(d.toString());
+		
+		String resp = getResponse2();
+		
+		return resp;	
 	}
 	
 	public String executeUserInsert(AppUser appUser)
@@ -124,11 +132,11 @@ public class Client extends Thread implements Runnable
 	}
 	
 	
-	public String login(String email, String password, String string)
+	public String login(String email, String password)
 	{
 
 		Datagram d =new Datagram();
-		d.create("valid" + separator + email + separator +password + separator+ string);
+		d.create("valid" + separator + email + separator +password);
 		out.println(d.toString());
 		
 		
