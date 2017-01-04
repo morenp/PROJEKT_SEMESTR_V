@@ -5,11 +5,11 @@ public class DatabaseQuery {
 
 
 	
-	public String getUserQuery(String email, String password, String parametr)
+	public String getUserQuery(String email, String password)
 	{
 		String q="";
 		
-		if(parametr.equals("1"))
+	
 		 q= "SELECT XMLELEMENT(\"name\",name)"
 				+ "||XMLELEMENT(\"secondName\",last_name)"
 				+ "|| XMLELEMENT(\"address\",address) "
@@ -18,12 +18,10 @@ public class DatabaseQuery {
 				+ "|| XMLELEMENT(\"email\",email) "
 				+ "|| XMLELEMENT(\"password\",password) "
 				+ "|| XMLELEMENT(\"dateOfRegistration\",date_of_registration) "
+				+ "|| XMLELEMENT(\"status\",status) "
 				+ "as xml_users from users "				
 				+ "u where u.email = "+"\'"+email+"\'";
-		else if(parametr.equals("2"))
-		{
-			q="SELECT address from users u where u.email = "+"\'"+email+"\'"+" AND u.password = "+ "\'"+password+"\'";
-		}
+		
 		return q;
 	}
 	
