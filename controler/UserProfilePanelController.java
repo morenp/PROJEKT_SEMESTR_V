@@ -45,15 +45,21 @@ public class UserProfilePanelController extends Controller implements Observer{
     	//USTAWIENIE POL TEKSTOWYCH
     	userProfile.change(txtName.getText(),txtSecondName.getText(),txtAddress.getText(),txtPhoneNumber.getText());
     	
-    	// USTWAIENIE LABELA INFORMUJACEGO
-    	lblProcess.setText("Zmiana danych przebieg³a pomyœlnie!");
+
     	
     	// POINFORMOWANIE OBSERWATOROW O ZAISTNIALEJ ZMIANIE
     	Main.getMainController().getUserPanelController().getUser().informObservers();
     	
     	// ZATWIERDZENIE ZAMIAN W BAZIE DANYCH
     	AppUser appUser = Main.getMainController().getUserPanelController().getUser().getAppUser();
-    	Main.getClient().executeUserProfileUpdate(appUser);	
+    	
+    	String status = Main.getClient().executeUserProfileUpdate(appUser);	
+    	// USTWAIENIE LABELA INFORMUJACEGO
+    	
+    	if(status.equals("update_complited"))
+        	lblProcess.setText("Zmiana danych przebiegla pomyslnie!");
+    	else
+        	lblProcess.setText("Zmiana danych nie powiodla sie!");	
     }
     
     public void edit(ActionEvent event)

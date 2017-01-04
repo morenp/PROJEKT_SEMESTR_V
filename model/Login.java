@@ -6,14 +6,16 @@ import mainClasses.AppUser;
 
 public class Login extends Model{
 
-	AppUser appUser;
+	private User user;
+	
+	
 	
 	private String resp;
 	
 	public Login()
 	{
 		super();
-		appUser = new AppUser();
+		user = new User();
 	}
 	
 	public int login(String email, String password)
@@ -24,8 +26,11 @@ public class Login extends Model{
 			if(ev.isValid(email) && !password.equals(""))
 			{
 			
-				//Login's data send to the server
-				this.resp = Main.getClient().login(email, password,"1");
+				//Login's data send to the server and receive data from server 
+				this.resp = Main.getClient().login(email, password);
+				
+				user.createAppUser(this.resp);
+				
 
 			    if(!this.resp.equals("wrong_password"))
 			    {
@@ -37,6 +42,7 @@ public class Login extends Model{
 			    	else		
 			    	{
 			    		//Login Success
+
 			    		return 1;
 			    	}
 				}
@@ -66,6 +72,12 @@ public class Login extends Model{
 	public String getResp() {
 		return resp;
 	}
+
+	public User getUser() {
+		return user;
+	}
+
+
 	
 	
 }
