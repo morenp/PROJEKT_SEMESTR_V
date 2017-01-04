@@ -30,17 +30,19 @@ public class UserPanelController extends Controller implements Observer{
     void initialize()
     {  
     	user= new User(this);
-    	
-    	System.out.println("JESTEM klasa : " + Main.getActualController());
+ 
+    	// Jesli aktualnie obslugujacy kontroler jest instancja klasu login kontroler uzytkownik jest logowany
+    	// na podstawie odpowiedzi z serwera 
     	if(Main.getActualController() instanceof LoginController)
     	{
     		user.createAppUser(Main.getMainController().getLoginController().getLogin().getResp());
-    		System.out.println("A1");
     	}
+    	
+    	//Jesli aktualnie obslugujacy kontroler jest instancja klasy RegistrationController wtedy oznaczato
+    	//ze uzytkownik ma zostac zalogowany odrazu po rejestracji
     	else if(Main.getActualController() instanceof RegistrationController)
     	{
     		user.createAppUser(Main.getMainController().getRegistrationController().getAppUser());
-    		System.out.println("A2");
     	}
     }
     
