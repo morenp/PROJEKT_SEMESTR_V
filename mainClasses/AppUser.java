@@ -27,6 +27,8 @@ public class AppUser extends Person {
 	String password;
 	
 	String dateOfRegistration;
+	
+	String status;
 	//Reservation reservations[];
 	
 	
@@ -41,12 +43,13 @@ public class AppUser extends Person {
 	}
 	
 	public AppUser(String name, String secondName, String address, String phoneNumber, String userID, String email,
-			String password, String dateOfRegistration/*,Reservation[] reservations*/) {
+			String password, String dateOfRegistration, String status/*,Reservation[] reservations*/) {
 		super(name, secondName, address, phoneNumber);
 		this.userID = userID;
 		this.email = email;
 		this.password = password;
 		this.dateOfRegistration = dateOfRegistration;
+		this.status = status;
 	//	this.reservations = reservations;
 	}
 
@@ -80,6 +83,8 @@ public class AppUser extends Person {
 		Element dateOfRegistration = new Element("dateOfRegistration");
 		dateOfRegistration.appendChild(this.dateOfRegistration);
 			
+		Element status = new Element("status");
+		status.appendChild(this.status);
 		
 		appUser.appendChild(name);	
 		appUser.appendChild(secondName);
@@ -89,6 +94,7 @@ public class AppUser extends Person {
 		appUser.appendChild(email);
 		appUser.appendChild(password);
 		appUser.appendChild(dateOfRegistration);
+		appUser.appendChild(status);
 		
 		return appUser;
 	}
@@ -136,7 +142,7 @@ public class AppUser extends Person {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-//	@XmlAttribute(name="dateOfRegistration") 
+	
 	public String getDateOfRegistration() {
 		return dateOfRegistration;
 	}
@@ -144,20 +150,18 @@ public class AppUser extends Person {
 	public void setDateOfRegistration(String dateOfRegistration) {
 		this.dateOfRegistration = dateOfRegistration;
 	}
+	
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
 
 	@Override
 	public String toString() {
 		return "AppUser [userID=" + userID + ", email=" + email + ", password=" + password + ", dateOfRegistration="
-				+ dateOfRegistration + "]";
-	}
-
-/*	public Reservation[] getReservations() {
-		return reservations;
-	}
-
-	public void setReservations(Reservation[] reservations) {
-		this.reservations = reservations;
-	}	*/
-	
-	
+				+ dateOfRegistration + ", status=" + status + "]";
+	}	
 }
