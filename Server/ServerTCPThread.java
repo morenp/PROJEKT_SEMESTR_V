@@ -86,6 +86,7 @@ public class ServerTCPThread extends Thread {
 	
 				try {
 					oracle.executeUserProfileUpdate(id, name, lastName, address, phoneNumber);
+					dane = "update_complited";
 				} catch (SQLException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -127,7 +128,7 @@ public class ServerTCPThread extends Thread {
 			case "valid":		
 			{
 				String password = data[2];
-				String parametr = data[3];
+	
 				query = "SELECT u.email from users u where u.email = " + "\'" + data[1] + "\'";
 
 				// Pobranie adresu email z bazy
@@ -146,7 +147,7 @@ public class ServerTCPThread extends Thread {
 					try {
 						if(PasswordHash.check(password, passwordHash))
 						{
-							query = dq.getUserQuery(email, password, parametr);
+							query = dq.getUserQuery(email, password);
 							dane = oracle.executeQuery(query);
 							System.out.println("Server dane : " + dane);
 						}
