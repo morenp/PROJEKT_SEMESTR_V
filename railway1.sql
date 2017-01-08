@@ -1,12 +1,14 @@
 --------------------------------------------------------
---  File created - sobota-stycznia-07-2017   
+--  File created - niedziela-stycznia-08-2017   
 --------------------------------------------------------
 DROP TABLE "RAILWAY"."CARRIAGES" cascade constraints;
 DROP TABLE "RAILWAY"."EXECUTE_RELATIONS" cascade constraints;
+DROP TABLE "RAILWAY"."INFORMATIONS" cascade constraints;
 DROP TABLE "RAILWAY"."RELATIONS" cascade constraints;
 DROP TABLE "RAILWAY"."RESERVATIONS" cascade constraints;
 DROP TABLE "RAILWAY"."SEATS" cascade constraints;
 DROP TABLE "RAILWAY"."STATIONS" cascade constraints;
+DROP TABLE "RAILWAY"."TICKET_RESERVATION" cascade constraints;
 DROP TABLE "RAILWAY"."TICKETS" cascade constraints;
 DROP TABLE "RAILWAY"."TRAINS" cascade constraints;
 DROP TABLE "RAILWAY"."UNUSED_ID" cascade constraints;
@@ -42,6 +44,23 @@ DROP PROCEDURE "RAILWAY"."UPDATE_PROFILE";
 	"DATE_TO" DATE, 
 	"TIME_FROM" TIMESTAMP (6), 
 	"TIME_TO" TIMESTAMP (6)
+   ) SEGMENT CREATION IMMEDIATE 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table INFORMATIONS
+--------------------------------------------------------
+
+  CREATE TABLE "RAILWAY"."INFORMATIONS" 
+   (	"INFORMATION_ID" NUMBER(*,0), 
+	"TEXT" VARCHAR2(300 BYTE), 
+	"INSERT_DATE" TIMESTAMP (6), 
+	"END_DATE" TIMESTAMP (6), 
+	"STATUS" NUMBER(*,0)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -109,6 +128,20 @@ DROP PROCEDURE "RAILWAY"."UPDATE_PROFILE";
   STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
   PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
   BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Table TICKET_RESERVATION
+--------------------------------------------------------
+
+  CREATE TABLE "RAILWAY"."TICKET_RESERVATION" 
+   (	"ID" NUMBER(*,0), 
+	"RESERVATION_ID" NUMBER(*,0), 
+	"TICKET_ID" NUMBER(*,0), 
+	"COST" NUMBER(8,2), 
+	"STATUS" VARCHAR2(30 BYTE)
+   ) SEGMENT CREATION DEFERRED 
+  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
+ NOCOMPRESS LOGGING
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  DDL for Table TICKETS
@@ -184,6 +217,11 @@ Insert into RAILWAY.CARRIAGES (CARRIAGE_ID,CLASS,TRAIN_ID) values ('4569279','2'
 REM INSERTING into RAILWAY.EXECUTE_RELATIONS
 SET DEFINE OFF;
 Insert into RAILWAY.EXECUTE_RELATIONS (EXEC_RELATION_ID,TRAIN_ID,RELATION_ID,DATE_FROM,DATE_TO,TIME_FROM,TIME_TO) values ('1','1','1',to_date('17/01/17','RR/MM/DD'),to_date('17/01/17','RR/MM/DD'),to_timestamp('17/01/27 09:08:00,000000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/17 12:00:00,000000000','RR/MM/DD HH24:MI:SSXFF'));
+REM INSERTING into RAILWAY.INFORMATIONS
+SET DEFINE OFF;
+Insert into RAILWAY.INFORMATIONS (INFORMATION_ID,TEXT,INSERT_DATE,END_DATE,STATUS) values ('1','Pociag relacji Krakow Warszawa opozniony o 2 h',to_timestamp('17/01/07 15:01:35,000000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/07 17:01:42,000000000','RR/MM/DD HH24:MI:SSXFF'),'1');
+Insert into RAILWAY.INFORMATIONS (INFORMATION_ID,TEXT,INSERT_DATE,END_DATE,STATUS) values ('2','Z powodu zlych warunkow atmosferycznych kurs pociagu relacji Gdansk Wroclaw zostaje zawieszony!  ',to_timestamp('17/01/07 16:26:27,167000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/22 16:26:30,612000000','RR/MM/DD HH24:MI:SSXFF'),'2');
+Insert into RAILWAY.INFORMATIONS (INFORMATION_ID,TEXT,INSERT_DATE,END_DATE,STATUS) values ('3','dfsdvfe',to_timestamp('17/01/08 15:17:19,158000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/15 15:17:22,524000000','RR/MM/DD HH24:MI:SSXFF'),'3');
 REM INSERTING into RAILWAY.RELATIONS
 SET DEFINE OFF;
 Insert into RAILWAY.RELATIONS (RELATION_ID,STATION_ID_FROM,STATION_ID_TO) values ('1','1','2');
@@ -484,6 +522,8 @@ SET DEFINE OFF;
 Insert into RAILWAY.STATIONS (STATION_ID,NAME,CITY,ADDRESS) values ('1','Krakow Glowny','Krakow','Pawia 5a, 30-001 Krakow');
 Insert into RAILWAY.STATIONS (STATION_ID,NAME,CITY,ADDRESS) values ('2','Warszawa Centralna','Warszawa','Aleje Jerozolimskie 54, 00-001 Warszawa');
 Insert into RAILWAY.STATIONS (STATION_ID,NAME,CITY,ADDRESS) values ('3','Gdansk Glowny','Gdansk','Podwale Grodzkie 1, 80-001 Gdansk');
+REM INSERTING into RAILWAY.TICKET_RESERVATION
+SET DEFINE OFF;
 REM INSERTING into RAILWAY.TICKETS
 SET DEFINE OFF;
 REM INSERTING into RAILWAY.TRAINS
@@ -491,11 +531,16 @@ SET DEFINE OFF;
 Insert into RAILWAY.TRAINS (TRAIN_ID) values ('1');
 REM INSERTING into RAILWAY.UNUSED_ID
 SET DEFINE OFF;
+Insert into RAILWAY.UNUSED_ID ("unused_id") values ('43');
 REM INSERTING into RAILWAY.USERS
 SET DEFINE OFF;
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('37','Michal','Kowalski','michal_kowalski@gmail.com','Fioletowa 72 Katowice',to_date('17/01/08','RR/MM/DD'),'rrP4Z3G+V2y8+4VZO/t8BnQIcdxKymRJ7wxukTGg5Aw=$ImiiOVLyXOhsg2tYWFqzkM/wO1t3iy2K5dTdTzeixaI=','532-743-794','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('38','Michal','Kowalksi','mfaky@gamil.com','bvwag ',to_date('17/01/08','RR/MM/DD'),'9suZJqA4TN8J3A+QeDP7faeJeIU9ujVDrjwZ9zR5IH4=$IxO7myF7iQ/AM2+R+LAZEZZ4XIk9t7IPW13GT82AcuY=','764-532-532','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('9','Jan','Kowalski','jkowal@gmail.com','qwertyuiop',to_date('16/12/20','RR/MM/DD'),'llIYlkzIQO8QAwVRrxG8ouhDs96Cdcbs/GZ8dpOTRA0=$IRRJq5upVehkudvRBmU9zjBNzwqAdjk33FR/eo1Vqws=','123-456-789','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('3','Zbyszek','Wodecki','zw@gmail.com','Garncarska 48 Poznan',to_date('15/08/08','RR/MM/DD'),'Jmb8K3jL0aIxrsWadTruavBqja1owrJcnrpd5aC9Cv0=$FW7OyLpl+4GE+sF8E6L+MuSvpex+o8tJCKODgtQf5PI=','555-555-555','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('12','Jan','Wolny','jwolny@gmail.com','qwertyuiop',to_date('16/12/26','RR/MM/DD'),'CWYqOqlRTozLvEY0l76kDpdFwZiHLTkI08wzI3nzuQU=$dKS8vTi8vO9Oft7TGCxwKhtlH2vgOkbSfHnWycgpKGE=','123-624-536','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('35','Anna','Kwiatkowska','a.kwiatkowska@gmail.com','Kwiatowa 18 Kraków ',to_date('17/01/07','RR/MM/DD'),'jNvz9u5afJqGTu2i43SWM8ZK4sdgL+MlFVECgLpsuHo=$LoWQa4/4EmLmNyhxKDsMTc6l7fKUZHFbP/SJdt0PFqs=','897123654','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('36','tyu','tyu','tyu@gmail.com','qwertyuiop',to_date('17/01/07','RR/MM/DD'),'fxRq3wPBJ/0MiOFF3ZI/GVsBKVhKhdX/rVLwOvDdhNA=$5LXIx3sgKVBAowXkGyJFOoE2znW7ryan9vg61QpjI1M=','7852875298','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('5','j','k','jk@gmail.com','qq',to_date('16/12/17','RR/MM/DD'),'Jmb8K3jL0aIxrsWadTruavBqja1owrJcnrpd5aC9Cv0=$FW7OyLpl+4GE+sF8E6L+MuSvpex+o8tJCKODgtQf5PI=','qq','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('6','Marcin','Pancerz','marcin2523@o2.pl','Wodna 45 Krakow',to_date('16/12/17','RR/MM/DD'),'yWa30qQRJgKYdifVpFEg8bBqlLC5n7LHsw2TmLlh7uY=$hCmqePeb8KkAUQ0PV/hyRHNJkYIbdCvscDMc/x+AVQ4=','884-555-999','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('14','Joanna','XYZ','xyz@gmail.com','qwertyuiop',to_date('16/12/26','RR/MM/DD'),'2t3ytbQgSLpu2wgH9XuT1Jp+TPTktwxb/p3o51xiuy0=$VYga3tBJwneObp5b30tTovKP5z9MqtCg6Mod5evamUs=','853-726-294','user');
@@ -511,10 +556,14 @@ Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRA
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('4','Jan','Kowalski','jkowalski@gmail.com','xyz',to_date('16/12/17','RR/MM/DD'),'hhh','999-999-999','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('10','Anna','Kmiecik','akmiecik@gmail.com','Topolowa 25 Gdynia',to_date('16/12/21','RR/MM/DD'),'ZRZCVsh0IAifADhF6IWher2TQKr9bwau5C/MPbNZW/I=$sPbqa5TEkaaeQAoIpAk6hlcuiPOawI4XGReyy5drWmo=','831-465-741','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('11','Anna','Wolna','awolna@gmail.com','qwertyuiop',to_date('16/12/26','RR/MM/DD'),'eGyz5Xyj78ghWzHIEJA6GhQkH9pYfgo8kyULZ5SyZvQ=$sZR12QyCnY8FBIEX8QH3cI46RAUzJYf4ONI2dzw7DJs=','261-596-938','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('40','erve','vewve','qwer@gmail.com','qwertyuiop',to_date('17/01/08','RR/MM/DD'),'TgPsC5Rus54VkD3xtiCzprEGvcEO1MmCW/ZD7tioNG0=$eSQ8nKry3T+NI0WtCZjoMLHc3BalK8BjevVZngC/fp0=','qwertyuiop','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('13','Annnna','Pancerz','apancerz@gmail.com','qwertyuiop',to_date('16/12/26','RR/MM/DD'),'1EPm5XORjuReD5a28H+FLzbXuE4I/N11TmdqtNXW+70=$OhKoBzoq/3kic3majZFDuH34onTg9CG8GIUpWf2MkpY=','123-456-789','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('23','sss','sss','sss@gmail.com','qwertyuiop',to_date('16/12/27','RR/MM/DD'),'uSiOX/I4/UJsBedC0cx3y3MJJAmKoLgwdfihvQ6qses=$h3ovKz9faDU6dtJYQwsTzDcrKDpULo6IcVEEXuNwIQE=','461385612','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('24','Julian','Nowicki','rrr@gmail.com','Krakowska 56 Warszawa',to_date('16/12/27','RR/MM/DD'),'M5uCnJI9iwo2nfxqrPL7PjmpR5Lrm6eTw9fsO6ArmIQ=$1/zLjzFvfx6tnzMKA+pSvukwOl3w7XO4nH/08F39dYQ=','762-535-217','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('34','Mateusz','Gawron','mgawron@gmail.com','Kolorowa 16/37 Myslenice',to_date('17/01/05','RR/MM/DD'),'8UhsvXPiGfG3NjsvEP2c8DIDEKSyleS/PLNEpx/d4qo=$q1ZNUoaH0rTM+phqVjlqWLvbX7/MvmaQg9VAOhpuStA=','636-643-643','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('39','Halina','Holok','hholok@gmail.com','gfvw',to_date('17/01/08','RR/MM/DD'),'1CmKjDd1gLvYDenpo8ZbhUg38ZNjuxTfzEx8FL8joJ4=$kGMMC9zWchGGFhYmEeABhjrPAvLwh3ABAKNUYc5UA1U=','684912480','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('41','1234','1234','1234@gmail.com','wfny',to_date('17/01/08','RR/MM/DD'),'y/trAAuTkntmS+vm/80OLEdm7t2Dj4HT83TKbyo2JN8=$Av7yVUGM0Y7esLH/oS5XQm4Dm2WVdfErCNUQNVXwP7E=','bcfnu','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('42','fewfeaw','efwavr','vaevawe@gmail.com','fgu',to_date('17/01/08','RR/MM/DD'),'5wDhnwl7su0ahQ7mez1Fga89t8jbf4FkHQ4hTZNXaHQ=$Jtg7NehSiEzsnMwg9/k1r/ctfoUBNp5JjQlanrzVI/s=','bgce','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('1','Mikołaj','Kowalski','mkowalski@gmail.com','Poznańska 58 Wrocław',to_date('15/03/17','RR/MM/DD'),'h1Kb7TBxX9vWmLaKsbNZnCn81qBGugakcPgPIjX5DOU=$xAL+PjWjXPMZj6HysRFGx1JKu1PR6CYIsA86+Wxvxjs=','864-946-645','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('2','Marcin','Kowalski','anowak@gmail.com','Kwiatowa 28 Warszawa',to_date('15/08/16','RR/MM/DD'),'Ie0zM5ZSAoRNzPNMGtSyIZDsa9sMfkY5tlLiOmdgr8M=$VAttu3nG2NrugpY4jpzByG7F986rYPKFqJ0Yysrtq4E=','300-500-800','admin');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('7','Anna','Kowalczyk','akowalczyk@o2.pl','Slowackiego 45 Katowice',to_date('16/12/17','RR/MM/DD'),'cRQRXOIl/W2+uyNF85Jf4yCHxYaoP2yMUFaRBICpCag=$LR0+5G9nK/xOnVmiGCtjjmkZfmBnqCou8ZgjS8fJvzg=','882-417-468','user');
@@ -526,7 +575,7 @@ Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRA
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('31','na','sh','sf@gmail.com','evwyjg',to_date('16/12/27','RR/MM/DD'),'ARj+yEzbua3qHBBZe0oM42I7txfUVYU9X+9fgCMn0/w=$edr/9WKleU85UrMIY12wr+1i1cXo152/84BYgQCOI/o=','sjhsd','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('18','marian','kowalski','mmkowalski@gmail.com','hhh',to_date('17/01/05','RR/MM/DD'),'cqZHcY2pvHNBz+IZGX84PPSge+aJcV3Js4QcWvxbJwI=$dYm5a7kyR8G0uPD28jSlpkgH4ze4BFi7dx8v+I7z9dE=','884-632-874','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('33','Janina','Kowalska','janinakowalska@gmail.com','hvqwnk',to_date('17/01/05','RR/MM/DD'),'t8B7e+tCUoAnMQzpKgsO6ovJWUZRK9cpZsfhLCfstZw=$GkfEAIqf6GVTjXKgfZmZQ6r6JpmnPZ7N0Z59dt6sQ4w=','561284364','user');
-Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('25','Andrzej','Kaszubek','a1@gmail.com','Kobierzynska 74/19 Krakow',to_date('17/01/05','RR/MM/DD'),'DTecDdctSPl+ERoRrwEF8A7o/NFoLgccEQ4cZxG6Qig=$JST6t0Fga//+ErJ0b4LUD5UXLQlZz19Xa3yY41vfF64=','468-584-488','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('25','Jan','Kaszubek','a1@gmail.com','Kobierzynska 74/19 Krakow',to_date('17/01/05','RR/MM/DD'),'DTecDdctSPl+ERoRrwEF8A7o/NFoLgccEQ4cZxG6Qig=$JST6t0Fga//+ErJ0b4LUD5UXLQlZz19Xa3yY41vfF64=','468-584-488','user');
 --------------------------------------------------------
 --  DDL for Index I_USERID_PK
 --------------------------------------------------------
@@ -581,27 +630,6 @@ BEGIN
   END LOOP;
   
 END create_carriage;
-
-
-CALL create_carriage(4569279,2,8,6);
-
-Select * from carriages;
-
-
-create or replace FUNCTION tickets_amount(
- train_id in trains.train_id%TYPE
- )RETURN INTEGER AS 
- amount INTEGER
- BEGIN
-    
-     Select SUM("SEAT_ID") into seat_id from SEATS WHERE ;
- END 
- 
- SELECT carriage_id from CARRIAGES  where train_id = 1;
-
- Select SEATS.SEAT_ID
- from CARRIAGES FULL JOIN SEATS 
- ON CARRIAGES.CARRIAGE_ID = SEATS.CARRIAGE_ID WHERE CARRIAGES.TRAIN_ID = 1 ;
 
 /
 --------------------------------------------------------
@@ -691,6 +719,17 @@ END update_profile;
   ALTER TABLE "RAILWAY"."EXECUTE_RELATIONS" MODIFY ("DATE_FROM" NOT NULL ENABLE);
   ALTER TABLE "RAILWAY"."EXECUTE_RELATIONS" MODIFY ("RELATION_ID" NOT NULL ENABLE);
   ALTER TABLE "RAILWAY"."EXECUTE_RELATIONS" MODIFY ("TRAIN_ID" NOT NULL ENABLE);
+--------------------------------------------------------
+--  Constraints for Table TICKET_RESERVATION
+--------------------------------------------------------
+
+  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" ADD PRIMARY KEY ("ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 
+  TABLESPACE "USERS"  ENABLE;
+  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("STATUS" NOT NULL ENABLE);
+  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("COST" NOT NULL ENABLE);
+  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("TICKET_ID" NOT NULL ENABLE);
+  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("RESERVATION_ID" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table RESERVATIONS
 --------------------------------------------------------
@@ -817,8 +856,6 @@ END update_profile;
 --  Ref Constraints for Table RESERVATIONS
 --------------------------------------------------------
 
-  ALTER TABLE "RAILWAY"."RESERVATIONS" ADD CONSTRAINT "TICKET_ID" FOREIGN KEY ("TICKET_ID")
-	  REFERENCES "RAILWAY"."TICKETS" ("TICKET_ID") ENABLE;
   ALTER TABLE "RAILWAY"."RESERVATIONS" ADD CONSTRAINT "USER_ID" FOREIGN KEY ("USER_ID")
 	  REFERENCES "RAILWAY"."USERS" ("USER_ID") ENABLE;
 --------------------------------------------------------
@@ -827,6 +864,14 @@ END update_profile;
 
   ALTER TABLE "RAILWAY"."SEATS" ADD CONSTRAINT "CARRIAGE_ID" FOREIGN KEY ("CARRIAGE_ID")
 	  REFERENCES "RAILWAY"."CARRIAGES" ("CARRIAGE_ID") ENABLE;
+--------------------------------------------------------
+--  Ref Constraints for Table TICKET_RESERVATION
+--------------------------------------------------------
+
+  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" ADD CONSTRAINT "RESERVATION_TICKET_RESERVATION" FOREIGN KEY ("RESERVATION_ID")
+	  REFERENCES "RAILWAY"."RESERVATIONS" ("RESERVATION_ID") ENABLE;
+  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" ADD CONSTRAINT "TICKET_RESERVATION_TICKET" FOREIGN KEY ("TICKET_ID")
+	  REFERENCES "RAILWAY"."TICKETS" ("TICKET_ID") ENABLE;
 --------------------------------------------------------
 --  Ref Constraints for Table TICKETS
 --------------------------------------------------------
