@@ -1,5 +1,5 @@
 --------------------------------------------------------
---  File created - czwartek-stycznia-12-2017   
+--  File created - niedziela-stycznia-15-2017   
 --------------------------------------------------------
 DROP TABLE "RAILWAY"."CARRIAGES" cascade constraints;
 DROP TABLE "RAILWAY"."DISCOUNT_POLICY" cascade constraints;
@@ -17,13 +17,28 @@ DROP TABLE "RAILWAY"."TICKETS" cascade constraints;
 DROP TABLE "RAILWAY"."TRAINS" cascade constraints;
 DROP TABLE "RAILWAY"."UNUSED_ID" cascade constraints;
 DROP TABLE "RAILWAY"."USERS" cascade constraints;
+DROP SEQUENCE "RAILWAY"."SEQ_CARRIAGE";
+DROP SEQUENCE "RAILWAY"."SEQ_EXEC_RELATION";
+DROP SEQUENCE "RAILWAY"."SEQ_INFORMATION";
+DROP SEQUENCE "RAILWAY"."SEQ_RELATION";
+DROP SEQUENCE "RAILWAY"."SEQ_RESERVATIONS";
+DROP SEQUENCE "RAILWAY"."SEQ_TICKETS";
+DROP SEQUENCE "RAILWAY"."SEQ_TRAIN";
 DROP PROCEDURE "RAILWAY"."CREATE_CARRIAGE";
+DROP PROCEDURE "RAILWAY"."CREATE_EXECUTE_RELATION";
+DROP PROCEDURE "RAILWAY"."CREATE_INFORMATION";
 DROP PROCEDURE "RAILWAY"."CREATE_POLICY";
-DROP PROCEDURE "RAILWAY"."CREATE_USER";
+DROP PROCEDURE "RAILWAY"."CREATE_TRAIN";
+DROP PROCEDURE "RAILWAY"."DELETE_RESERVATION";
 DROP PROCEDURE "RAILWAY"."DELETE_USER";
+DROP PROCEDURE "RAILWAY"."DROP_INFORMATION";
 DROP PROCEDURE "RAILWAY"."EDIT_DISCOUNT";
+DROP PROCEDURE "RAILWAY"."EDIT_INFORMATION";
 DROP PROCEDURE "RAILWAY"."UPDATE_PROFILE";
 DROP PROCEDURE "RAILWAY"."UPDATE_RULE";
+DROP FUNCTION "RAILWAY"."CREATE_RESERVATION";
+DROP FUNCTION "RAILWAY"."CREATE_USER";
+DROP FUNCTION "RAILWAY"."GET_RELATIONS_DATA";
 --------------------------------------------------------
 --  DDL for Table CARRIAGES
 --------------------------------------------------------
@@ -124,13 +139,16 @@ DROP PROCEDURE "RAILWAY"."UPDATE_RULE";
 
   CREATE TABLE "RAILWAY"."RESERVATIONS" 
    (	"RESERVATION_ID" NUMBER(*,0), 
-	"TICKET_ID" NUMBER(*,0), 
 	"USER_ID" NUMBER(*,0), 
 	"COST" NUMBER(8,2), 
-	"DATE" DATE
-   ) SEGMENT CREATION DEFERRED 
+	"DATE" DATE, 
+	"STATUS" VARCHAR2(30 BYTE)
+   ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
 --------------------------------------------------------
 --  DDL for Table RULES
@@ -225,7 +243,8 @@ DROP PROCEDURE "RAILWAY"."UPDATE_RULE";
 	"EXEC_RELATION_ID" NUMBER(*,0), 
 	"CARRIAGE_ID" NUMBER(10,0), 
 	"SEAT_NUMBER" NUMBER(10,0), 
-	"COMPARTMENT_NUMBER" NUMBER(10,0)
+	"COMPARTMENT_NUMBER" NUMBER(10,0), 
+	"RESERVATION_ID" NUMBER(38,0)
    ) SEGMENT CREATION IMMEDIATE 
   PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
  NOCOMPRESS LOGGING
@@ -281,6 +300,41 @@ DROP PROCEDURE "RAILWAY"."UPDATE_RULE";
   PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
   BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_CARRIAGE
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "RAILWAY"."SEQ_CARRIAGE"  MINVALUE 1 MAXVALUE 10000 INCREMENT BY 1 START WITH 10 CACHE 20 NOORDER  NOCYCLE  NOPARTITION ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_EXEC_RELATION
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "RAILWAY"."SEQ_EXEC_RELATION"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 103 CACHE 100 NOORDER  NOCYCLE  NOPARTITION ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_INFORMATION
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "RAILWAY"."SEQ_INFORMATION"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 11 CACHE 10 NOORDER  NOCYCLE  NOPARTITION ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_RELATION
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "RAILWAY"."SEQ_RELATION"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 101 CACHE 100 NOORDER  NOCYCLE  NOPARTITION ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_RESERVATIONS
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "RAILWAY"."SEQ_RESERVATIONS"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 201 CACHE 100 NOORDER  NOCYCLE  NOPARTITION ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_TICKETS
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "RAILWAY"."SEQ_TICKETS"  MINVALUE 1 MAXVALUE 999999 INCREMENT BY 1 START WITH 6 CACHE 20 NOORDER  NOCYCLE  NOPARTITION ;
+--------------------------------------------------------
+--  DDL for Sequence SEQ_TRAIN
+--------------------------------------------------------
+
+   CREATE SEQUENCE  "RAILWAY"."SEQ_TRAIN"  MINVALUE 1 MAXVALUE 1000 INCREMENT BY 1 START WITH 2 CACHE 20 NOORDER  NOCYCLE  NOPARTITION ;
 REM INSERTING into RAILWAY.CARRIAGES
 SET DEFINE OFF;
 Insert into RAILWAY.CARRIAGES (CARRIAGE_ID,CLASS,TRAIN_ID) values ('4569274','1','1');
@@ -289,6 +343,7 @@ Insert into RAILWAY.CARRIAGES (CARRIAGE_ID,CLASS,TRAIN_ID) values ('4569276','1'
 Insert into RAILWAY.CARRIAGES (CARRIAGE_ID,CLASS,TRAIN_ID) values ('4569277','2','1');
 Insert into RAILWAY.CARRIAGES (CARRIAGE_ID,CLASS,TRAIN_ID) values ('4569278','2','1');
 Insert into RAILWAY.CARRIAGES (CARRIAGE_ID,CLASS,TRAIN_ID) values ('4569279','2','1');
+Insert into RAILWAY.CARRIAGES (CARRIAGE_ID,CLASS,TRAIN_ID) values ('28768','1',null);
 REM INSERTING into RAILWAY.DISCOUNT_POLICY
 SET DEFINE OFF;
 Insert into RAILWAY.DISCOUNT_POLICY (NAME,PERCENT) values ('2','1');
@@ -297,12 +352,13 @@ Insert into RAILWAY.DISCOUNT_POLICY (NAME,PERCENT) values ('normalny','1');
 Insert into RAILWAY.DISCOUNT_POLICY (NAME,PERCENT) values ('1','1,3');
 REM INSERTING into RAILWAY.EXECUTE_RELATIONS
 SET DEFINE OFF;
-Insert into RAILWAY.EXECUTE_RELATIONS (EXEC_RELATION_ID,TRAIN_ID,RELATION_ID,TIME_FROM,TIME_TO,"DATE") values ('1','1','1',to_timestamp('17/01/27 10:08:00,000000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/17 12:00:00,000000000','RR/MM/DD HH24:MI:SSXFF'),to_date('17/01/27','RR/MM/DD'));
+Insert into RAILWAY.EXECUTE_RELATIONS (EXEC_RELATION_ID,TRAIN_ID,RELATION_ID,TIME_FROM,TIME_TO,"DATE") values ('1','1','1',to_timestamp('17/01/27 10:08:00,000000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/27 12:00:00,000000000','RR/MM/DD HH24:MI:SSXFF'),to_date('17/01/27','RR/MM/DD'));
+Insert into RAILWAY.EXECUTE_RELATIONS (EXEC_RELATION_ID,TRAIN_ID,RELATION_ID,TIME_FROM,TIME_TO,"DATE") values ('3','1','1',to_timestamp('17/01/28 10:08:00,000000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/28 15:08:00,000000000','RR/MM/DD HH24:MI:SSXFF'),to_date('17/01/28','RR/MM/DD'));
 Insert into RAILWAY.EXECUTE_RELATIONS (EXEC_RELATION_ID,TRAIN_ID,RELATION_ID,TIME_FROM,TIME_TO,"DATE") values ('2','1','1',to_timestamp('17/01/27 14:10:48,046000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/27 18:10:55,076000000','RR/MM/DD HH24:MI:SSXFF'),to_date('17/01/27','RR/MM/DD'));
 REM INSERTING into RAILWAY.INFORMATIONS
 SET DEFINE OFF;
-Insert into RAILWAY.INFORMATIONS (INFORMATION_ID,TEXT,INSERT_DATE,END_DATE,STATUS) values ('1','Pociag relacji Krakow Warszawa opozniony o 2 h',to_timestamp('17/01/07 15:01:35,000000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/28 17:01:42,000000000','RR/MM/DD HH24:MI:SSXFF'),'1');
-Insert into RAILWAY.INFORMATIONS (INFORMATION_ID,TEXT,INSERT_DATE,END_DATE,STATUS) values ('2','Z powodu zlych warunkow atmosferycznych kurs pociagu relacji Gdansk Wroclaw zostaje zawieszony!  ',to_timestamp('17/01/07 16:26:27,167000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/22 16:26:30,612000000','RR/MM/DD HH24:MI:SSXFF'),'2');
+Insert into RAILWAY.INFORMATIONS (INFORMATION_ID,TEXT,INSERT_DATE,END_DATE,STATUS) values ('15','Pociag relacji Krakow Warszawa opozniony o 2 h',to_timestamp('17/01/07 15:01:35,000000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/28 17:01:42,000000000','RR/MM/DD HH24:MI:SSXFF'),'1');
+Insert into RAILWAY.INFORMATIONS (INFORMATION_ID,TEXT,INSERT_DATE,END_DATE,STATUS) values ('26','Z powodu zlych warunkow atmosferycznych kurs pociagu relacji Gdansk Wroclaw zostaje zawieszony!  ',to_timestamp('17/01/07 16:26:27,167000000','RR/MM/DD HH24:MI:SSXFF'),to_timestamp('17/01/22 16:26:30,612000000','RR/MM/DD HH24:MI:SSXFF'),'2');
 REM INSERTING into RAILWAY.PASSENGER_SAFETY
 SET DEFINE OFF;
 Insert into RAILWAY.PASSENGER_SAFETY (PASSENGER_SAFETY_ID,TEXT) values ('1','Nale¿y przestrzegac przepisów porz¹dkowych obowi¹zuj¹cych na dworcach. ');
@@ -319,9 +375,13 @@ Insert into RAILWAY.PASSENGER_SAFETY (PASSENGER_SAFETY_ID,TEXT) values ('11','Gd
 Insert into RAILWAY.PASSENGER_SAFETY (PASSENGER_SAFETY_ID,TEXT) values ('12','W celu  poprawienia bezpieczeñstwa i skutecznoœci udzielania pierwszej pomocy w sytuacjach zagro¿enia ¿ycia, dworce PKP s¹ sukcesywnie wyposa¿ane w defibrylatory AED. ');
 REM INSERTING into RAILWAY.RELATIONS
 SET DEFINE OFF;
-Insert into RAILWAY.RELATIONS (RELATION_ID,STATION_ID_FROM,STATION_ID_TO,COST) values ('1','1','2','25');
+Insert into RAILWAY.RELATIONS (RELATION_ID,STATION_ID_FROM,STATION_ID_TO,COST) values ('1','1','2','30');
 REM INSERTING into RAILWAY.RESERVATIONS
 SET DEFINE OFF;
+Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('21','28','19,5',to_date('17/01/15','RR/MM/DD'),'nieoplacono');
+Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('106','12','39',to_date('17/01/15','RR/MM/DD'),'nieoplacono');
+Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('23','25','39',to_date('17/01/15','RR/MM/DD'),'nieoplacono');
+Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('107','12','30',to_date('17/01/15','RR/MM/DD'),'nieoplacono');
 REM INSERTING into RAILWAY.RULES
 SET DEFINE OFF;
 Insert into RAILWAY.RULES ("id") values ('1');
@@ -615,6 +675,42 @@ Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) value
 Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('286','4','8','4569279');
 Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('287','5','8','4569279');
 Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('288','6','8','4569279');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('289','1','1','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('290','2','1','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('291','3','1','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('292','4','1','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('293','5','1','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('294','6','1','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('295','1','2','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('296','2','2','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('297','3','2','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('298','4','2','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('299','5','2','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('300','6','2','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('301','1','3','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('302','2','3','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('303','3','3','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('304','4','3','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('305','5','3','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('306','6','3','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('307','1','4','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('308','2','4','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('309','3','4','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('310','4','4','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('311','5','4','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('312','6','4','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('313','1','5','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('314','2','5','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('315','3','5','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('316','4','5','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('317','5','5','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('318','6','5','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('319','1','6','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('320','2','6','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('321','3','6','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('322','4','6','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('323','5','6','28768');
+Insert into RAILWAY.SEATS (SEAT_ID,SEAT_NUMBER,COMPARTMENT_ID,CARRIAGE_ID) values ('324','6','6','28768');
 REM INSERTING into RAILWAY.STATIONS
 SET DEFINE OFF;
 Insert into RAILWAY.STATIONS (STATION_ID,NAME,CITY,ADDRESS) values ('1','Krakow Glowny','Krakow','Pawia 5a, 30-001 Krakow');
@@ -661,30 +757,30 @@ REM INSERTING into RAILWAY.TICKET_RESERVATION
 SET DEFINE OFF;
 REM INSERTING into RAILWAY.TICKETS
 SET DEFINE OFF;
-Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER) values ('1',null,'100','wolny',null,'1','4569274','1','1');
-Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER) values ('2',null,'100','wolny',null,'1','4569274','2','1');
-Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER) values ('3',null,'100','wolny',null,'1','4569274','3','1');
-Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER) values ('4',null,'100','wolny',null,'1','4569278','1','1');
+Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('5','ulgowy','15','zarezerwowany',null,'1','4569278','2','1','107');
+Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('1','normalny','39','zarezerwowany',null,'1','4569274','1','1','23');
+Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('2','normalny','39','zarezerwowany',null,'1','4569274','2','1','106');
+Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('3','ulgowy','19,5','zarezerwowany',null,'1','4569274','3','1','21');
+Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('4','ulgowy','15','zarezerwowany',null,'1','4569278','1','1','107');
 REM INSERTING into RAILWAY.TRAINS
 SET DEFINE OFF;
 Insert into RAILWAY.TRAINS (TRAIN_ID,NAME) values ('1','Kowalik');
 REM INSERTING into RAILWAY.UNUSED_ID
 SET DEFINE OFF;
-Insert into RAILWAY.UNUSED_ID ("unused_id") values ('28');
-Insert into RAILWAY.UNUSED_ID ("unused_id") values ('29');
-Insert into RAILWAY.UNUSED_ID ("unused_id") values ('19');
-Insert into RAILWAY.UNUSED_ID ("unused_id") values ('5');
 Insert into RAILWAY.UNUSED_ID ("unused_id") values ('31');
-Insert into RAILWAY.UNUSED_ID ("unused_id") values ('17');
 REM INSERTING into RAILWAY.USERS
 SET DEFINE OFF;
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('37','Michal','Kowalski','michal_kowalski@gmail.com','Fioletowa 72 Katowice',to_date('17/01/08','RR/MM/DD'),'rrP4Z3G+V2y8+4VZO/t8BnQIcdxKymRJ7wxukTGg5Aw=$ImiiOVLyXOhsg2tYWFqzkM/wO1t3iy2K5dTdTzeixaI=','532-743-794','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('38','Michal','Kowalksi','mfaky@gamil.com','bvwag ',to_date('17/01/08','RR/MM/DD'),'9suZJqA4TN8J3A+QeDP7faeJeIU9ujVDrjwZ9zR5IH4=$IxO7myF7iQ/AM2+R+LAZEZZ4XIk9t7IPW13GT82AcuY=','764-532-532','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('9','Jan','Kowalski','jkowal@gmail.com','qwertyuiop',to_date('16/12/20','RR/MM/DD'),'llIYlkzIQO8QAwVRrxG8ouhDs96Cdcbs/GZ8dpOTRA0=$IRRJq5upVehkudvRBmU9zjBNzwqAdjk33FR/eo1Vqws=','123-456-789','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('3','Zbyszek','Wodecki','zw@gmail.com','Garncarska 48 Poznan',to_date('15/08/08','RR/MM/DD'),'Jmb8K3jL0aIxrsWadTruavBqja1owrJcnrpd5aC9Cv0=$FW7OyLpl+4GE+sF8E6L+MuSvpex+o8tJCKODgtQf5PI=','555-555-555','user');
-Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('12','Jan','Wolny','jwolny@gmail.com','qwertyuiop',to_date('16/12/26','RR/MM/DD'),'CWYqOqlRTozLvEY0l76kDpdFwZiHLTkI08wzI3nzuQU=$dKS8vTi8vO9Oft7TGCxwKhtlH2vgOkbSfHnWycgpKGE=','123-624-536','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('35','Anna','Kwiatkowska','a.kwiatkowska@gmail.com','Kwiatowa 18 KrakÃ³w ',to_date('17/01/07','RR/MM/DD'),'jNvz9u5afJqGTu2i43SWM8ZK4sdgL+MlFVECgLpsuHo=$LoWQa4/4EmLmNyhxKDsMTc6l7fKUZHFbP/SJdt0PFqs=','897123654','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('36','Admin','Admin','admin@gmail.com','Admin',to_date('17/01/07','RR/MM/DD'),'fxRq3wPBJ/0MiOFF3ZI/GVsBKVhKhdX/rVLwOvDdhNA=$5LXIx3sgKVBAowXkGyJFOoE2znW7ryan9vg61QpjI1M=','785287598','admin');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('5','Jan','Kaczmarski','jkaczmarski@gmail.com','__GUEST__Wola 46, Koloro__GUEST__',to_date('17/01/14','RR/MM/DD'),'EMPTY_GUEST','854-695-325','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('17','Anna','Kowalik','_G_aaakowalik@gmail.com_G_','Wola 64, Kraków',to_date('17/01/14','RR/MM/DD'),'EMPTY_GUEST','732-643-634','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('19','dasd','dasdsa','_G_aako@gmail.com_G_','fvse',to_date('17/01/14','RR/MM/DD'),'EMPTY_GUEST','54352','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('29','vcst','rbtcgrcstb','bztdxc@gmail.com','qwertyuiop',to_date('17/01/14','RR/MM/DD'),'kU5feq+nFj4DYUPfGw1V9qfUhcJFYxkwr5FkPX4CPXU=$WTx8SB5lVdkKFtO006iL6fEas0vAzlMFUinj+8lcCoc=','8946325423','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('28','JAnina','oufgakn','_G_HHHHH@gmail.com_G_','vkjgsekv',to_date('17/01/15','RR/MM/DD'),'EMPTY_GUEST','veuuve','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('6','Marcin','Pancerz','marcin2523@o2.pl','Wodna 45 Krakow',to_date('16/12/17','RR/MM/DD'),'yWa30qQRJgKYdifVpFEg8bBqlLC5n7LHsw2TmLlh7uY=$hCmqePeb8KkAUQ0PV/hyRHNJkYIbdCvscDMc/x+AVQ4=','884-555-999','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('14','Joanna','XYZ','xyz@gmail.com','qwertyuiop',to_date('16/12/26','RR/MM/DD'),'2t3ytbQgSLpu2wgH9XuT1Jp+TPTktwxb/p3o51xiuy0=$VYga3tBJwneObp5b30tTovKP5z9MqtCg6Mod5evamUs=','853-726-294','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('15','Bozena','Kowalik','bkowalik@gmail.com','qwertyuiop',to_date('16/12/26','RR/MM/DD'),'fEeFZbqySP42FLudlapOnDJoKpKYB9tfyfe628Yy8Js=$M5snTellYOS1UINZiSVuKDJe9b29DWbSUL+67ALh1Is=','152-475-374','user');
@@ -711,6 +807,7 @@ Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRA
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('22','Dariusz','Nowobilski','dnowobilski@gmail.com','Grodzka 39/12 Krakow',to_date('16/12/27','RR/MM/DD'),'/f45jjsyRqy0V/p1KE8atBngNpW44Re0Fj8zLSFQTNk=$FioOMjgYeAsMmoqUbqMXK9su+yw67EmJV4cY8G2TLLQ=','548-754-698','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('43','Micha³','¯ó³æ','m¿ó³æ@gmail.com','¯ó³æ 74, Kraków',to_date('17/01/09','RR/MM/DD'),'yihgjv5tFYOR6OvxHQmzIJkMFDpPpHdXIPhnBCDEQMc=$WRm3fGfmhAk+KhLut92zzkioSQ4OUXRrhLkBeBjmChE=','652-534-533','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('26','Anna','Janta','ajanta@gmail.com','qwertyuiop',to_date('16/12/27','RR/MM/DD'),'uzM+ffl96rSstKBnfAQSAPvzECQr1GQZi7fDHxuOOMI=$pqBlUNzu5skb/jxzqcRfoq7VctYJD1aq516rXqwhmNA=','65318589','user');
+Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('12','Jan','Kowalski','pkspuser@gmail.com','Warszawska 24, Kraków',to_date('17/01/15','RR/MM/DD'),'eEfzGz1r/HxpXc/FfmLkAddQa0ZJqg4fGZc72Qf9eUM=$CREgdPTbMt/lGHOUCuAmD2PqWmxJv4qw9Q5MDD8J42A=','884-965-325','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('30','agnieszka','kowalska','agakowalska@gmail.com','Siwa 46, Skawina',to_date('16/12/27','RR/MM/DD'),'J6qKikOFJ7WmIPiSR1LpxuxENwf0vJNWIVjNtSXuvEY=$IrZL6DlWxhHJg1njE98enX9kKSC/GVQanoT2LaV322Y=','652-355-353','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('18','marian','kowalski','mmkowalski@gmail.com','hhh',to_date('17/01/05','RR/MM/DD'),'cqZHcY2pvHNBz+IZGX84PPSge+aJcV3Js4QcWvxbJwI=$dYm5a7kyR8G0uPD28jSlpkgH4ze4BFi7dx8v+I7z9dE=','884-632-874','user');
 Insert into RAILWAY.USERS (USER_ID,NAME,LAST_NAME,EMAIL,ADDRESS,DATE_OF_REGISTRATION,PASSWORD,PHONE_NUMBER,STATUS) values ('33','Janina','Kowalska','janinakowalska@gmail.com','hvqwnk',to_date('17/01/05','RR/MM/DD'),'t8B7e+tCUoAnMQzpKgsO6ovJWUZRK9cpZsfhLCfstZw=$GkfEAIqf6GVTjXKgfZmZQ6r6JpmnPZ7N0Z59dt6sQ4w=','561284364','user');
@@ -745,6 +842,7 @@ set define off;
 
   carriage_id in carriages.carriage_id%TYPE,
   carriage_class in carriages.class%TYPE,
+  train_id in carriages.train_id%TYPE,
   compartments_amount INTEGER,
   compartment_seats_amount INTEGER
 ) IS
@@ -755,9 +853,9 @@ set define off;
 BEGIN
 
   INSERT INTO CARRIAGES 
-    (CARRIAGE_ID,CLASS)
+    (CARRIAGE_ID,CLASS,train_id)
   values
-    (carriage_id,carriage_class);
+    (carriage_id,carriage_class,train_id);
   
   compartment_index :=1;
   compartment_index :=1;
@@ -783,6 +881,103 @@ END create_carriage;
 
 /
 --------------------------------------------------------
+--  DDL for Procedure CREATE_EXECUTE_RELATION
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "RAILWAY"."CREATE_EXECUTE_RELATION" 
+(
+ p_station_from IN STATIONS.NAME%TYPE,
+ p_station_to IN STATIONS.NAME%TYPE,
+ p_cost IN RELATIONS.COST%TYPE,
+ p_trainName IN TRAINS.NAME%TYPE, 
+ p_timeIn IN VARCHAR2,
+ p_timeOut IN VARCHAR2,
+ p_date IN VARCHAR2
+) 
+ IS
+
+  station_from_id STATIONS.STATION_id%TYPE;
+  station_to_id  STATIONS.STATION_id%TYPE;
+  relation  RELATIONS.RELATION_ID%TYPE;
+  train TRAINS.TRAIN_id%TYPE;
+  id_exec NUMBER;
+    carriage_index  carriages.carriage_ID%TYPE;
+  carriage_amount INTEGER;
+    compartment_index  carriages.carriage_ID%TYPE;
+  compartment_amount INTEGER;
+    seat_index  carriages.carriage_ID%TYPE;
+  seat_amount INTEGER;
+  ----------- KURSOR DLA POBRANIA RELACJI ----------------
+  CURSOR c_relation IS 
+  SELECT  RELATION_ID
+  FROM RELATIONS 
+  WHERE STATION_ID_FROM = station_from_id and STATION_ID_TO = station_to_id; 
+  --------------------------------------------------------
+BEGIN
+---------------- POBRANIE ID STACJI STARTOWEJ NA PODSTAWIE JEJ NAZWY ----------------------------------------------
+Select STATIONS."STATION_ID" into station_from_id from STATIONS where STATIONS."NAME" = p_station_from;
+---------------- POBRANIE ID STACJI DOCELOWEJ  NA PODSTAWIE JEJ NAZWY ---------------------------------------------
+Select STATION_ID into station_to_id from STATIONS where NAME = p_station_to;
+---------------- POBRANIE ID POCI¥GU NA PODSTAWIE NAZWY -----------------------------------------------------------
+select TRAINS."TRAIN_ID" into train from TRAINS where TRAINS."NAME" = p_trainName;
+
+id_exec:=seq_exec_relation.nextval;
+------------------------------------------------------------------------------------------------------------------- 
+OPEN c_relation; -- OTWARCIE KURSORA
+FETCH c_relation into relation; -- POBRANIE WARTOSCI 
+ 
+      IF c_relation%NOTFOUND  then   
+        insert into RELATIONS (RELATION_ID, STATION_ID_FROM, STATION_ID_TO,RELATIONS."COST") values (seq_relation.nextval, station_from_id, station_to_id, p_cost);
+      END IF; 
+
+close c_relation; -- ZAMKNIECIE KURSOR
+--------------------------------------- UTWORZENIE NOWEJ WYKONYWANEJ RELACJI --------------------------------------
+
+INSERT INTO "RAILWAY"."EXECUTE_RELATIONS" (EXEC_RELATION_ID, TRAIN_ID, RELATION_ID,TIME_FROM, TIME_TO, "DATE") VALUES 
+(id_exec, train, relation,
+TO_TIMESTAMP(p_timeIn, 'RR/MM/DD HH24:MI:SS,FF'),
+TO_TIMESTAMP( p_timeOut, 'RR/MM/DD HH24:MI:SS,FF'),
+TO_DATE(p_date, 'RR/MM/DD'));
+
+  select count(train_id) into carriage_amount from carriages where train_id=train;
+  select min(carriage_id) into carriage_index from carriages where train_id=train;
+  
+  select count(carriage_id) into compartment_amount from seats where carriage_id=carriage_index; --policzy ile jest przedzialow, we wszystkich wagonach jest tyle samo przedzialow
+  select min(compartment_id) into compartment_index from seats where carriage_id=carriage_index;
+  
+  select count(compartment_id) into seat_amount from seats where compartment_id=compartment_index; --policzy ile jest siedzen, we wszystkich  przedzialach jest tyle samo siedzen
+  select min(seat_id) into seat_index from seats where compartment_id=compartment_index;
+  
+FOR carriage_index IN 1..carriage_amount LOOP
+  FOR compartment_index IN 1..compartment_amount LOOP
+    FOR seat_index IN 1..seat_amount LOOP   
+      INSERT INTO TICKETS (TICKET_ID,EXEC_RELATION_ID, SEAT_NUMBER,COMPARTMENT_NUMBER,CARRIAGE_ID) values
+      (seq_tickets.nextval,id_exec,seat_index,compartment_index,carriage_index);
+    END LOOP;
+  END LOOP;
+END LOOP;
+-------------------------------------------------------------------------------------------------------------------
+END CREATE_EXECUTE_RELATION;
+
+/
+--------------------------------------------------------
+--  DDL for Procedure CREATE_INFORMATION
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "RAILWAY"."CREATE_INFORMATION" 
+(
+  p_text IN VARCHAR2  
+, p_date IN VARCHAR2  
+, p_status IN VARCHAR2  
+) AS 
+BEGIN
+  insert into INFORMATIONS (information_id, text, insert_date,end_date,status)  values (seq_information.nextval, p_text, current_timestamp, TO_TIMESTAMP(p_date,'mm/dd/yyyy hh24:mi.ss.ff'),p_status);
+END CREATE_INFORMATION;
+
+/
+--------------------------------------------------------
 --  DDL for Procedure CREATE_POLICY
 --------------------------------------------------------
 set define off;
@@ -798,39 +993,63 @@ END;
 
 /
 --------------------------------------------------------
---  DDL for Procedure CREATE_USER
+--  DDL for Procedure CREATE_TRAIN
 --------------------------------------------------------
 set define off;
 
-  CREATE OR REPLACE EDITIONABLE PROCEDURE "RAILWAY"."CREATE_USER" (
-  usr_name in USERS.NAME%TYPE,
-  usr_last_name in USERS.LAST_NAME%TYPE,
-  usr_email in USERS.EMAIL%TYPE,
-  usr_password in USERS.PASSWORD%TYPE,
-  usr_address in USERS.ADDRESS%TYPE,
-  usr_phone_number in USERS.PHONE_NUMBER%TYPE
-)IS
-  usr_date USERS.DATE_OF_REGISTRATION%TYPE;
-  usr_id  USERS.USER_ID%TYPE;
-  
-  BEGIN
-  SELECT SYSDATE into usr_date from dual;
-  
-  
-  Select min("unused_id") into usr_id from unused_id;
-  
-  IF usr_id is null then
-      Select max(user_id) into usr_id from users ;
-      usr_id := usr_id +1;
-  ELSE
-      DELETE FROM UNUSED_ID WHERE "unused_id" = usr_id;
-  END IF;
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "RAILWAY"."CREATE_TRAIN" 
+(
+  p_name IN VARCHAR2  
+, p_carriages IN VARCHAR2  
+, p_compartments IN VARCHAR2  
+, p_seats IN VARCHAR2  
+, p_1stClassCount IN VARCHAR2 
+) IS
 
-  INSERT INTO USERS 
-  ( USER_ID, NAME, LAST_NAME, EMAIL, ADDRESS, DATE_OF_REGISTRATION, PASSWORD, PHONE_NUMBER) values
-  ( usr_id,usr_name, usr_last_name,usr_email,usr_address,usr_date, usr_password,usr_phone_number);
+  carriage_id INTEGER;
+  secondClassCount INTEGER;
+  seat_index INTEGER;
+  compartment_index  INTEGER;
+  id_train INTEGER;
+  seat_id  SEATS.SEAT_ID%TYPE;
+BEGIN
+  id_train:=seq_train.nextval;
+  insert into TRAINS (TRAIN_ID, NAME) values (id_train, p_name);
+  Select max("CARRIAGE_ID") into carriage_id from CARRIAGES;
+  IF carriage_id is null then
+    carriage_id := 1;
+  ELSE
+    carriage_id:=carriage_id+1;
+  END IF;
+  secondClassCount := p_carriages - p_1stClassCount;
+  FOR carriage_id IN 1..p_1stClassCount LOOP
+    create_carriage(seq_carriage.nextval,1,id_train,p_compartments,p_seats);
+  END LOOP;
+  FOR carriage_id IN 1..secondClassCount LOOP
+    create_carriage(seq_carriage.nextval,2,id_train,p_compartments,p_seats);
+  END LOOP;
+END CREATE_TRAIN;
+
+/
+--------------------------------------------------------
+--  DDL for Procedure DELETE_RESERVATION
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "RAILWAY"."DELETE_RESERVATION" 
+(
+  p_reservation_id IN VARCHAR2  
+) AS 
+BEGIN
+  UPDATE TICKETS
+  SET "STATUS" = 'wolny',
+  "PRICE" = NULL,
+  "TYPE" = NULL,
+  "RESERVATION_ID" = NULL
+  WHERE TICKETS."RESERVATION_ID" = p_reservation_id;
   
-END create_user;
+  DELETE FROM RESERVATIONS WHERE RESERVATION_ID = p_reservation_id;
+END DELETE_RESERVATION;
 
 /
 --------------------------------------------------------
@@ -851,6 +1070,20 @@ END DELETE_USER;
 
 /
 --------------------------------------------------------
+--  DDL for Procedure DROP_INFORMATION
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "RAILWAY"."DROP_INFORMATION" 
+(
+  p_text IN VARCHAR2  
+) AS 
+BEGIN
+  DELETE FROM INFORMATIONS WHERE TEXT = p_text;
+END DROP_INFORMATION;
+
+/
+--------------------------------------------------------
 --  DDL for Procedure EDIT_DISCOUNT
 --------------------------------------------------------
 set define off;
@@ -865,6 +1098,25 @@ set define off;
     SET DISCOUNT_POLICY."PERCENT" = p_value
     WHERE DISCOUNT_POLICY."NAME" = p_name;
   END;
+
+/
+--------------------------------------------------------
+--  DDL for Procedure EDIT_INFORMATION
+--------------------------------------------------------
+set define off;
+
+  CREATE OR REPLACE EDITIONABLE PROCEDURE "RAILWAY"."EDIT_INFORMATION" 
+(
+  p_text IN VARCHAR2  
+, p_date IN VARCHAR2  
+, p_status IN VARCHAR2  
+, p_target IN VARCHAR2
+) AS 
+BEGIN
+    UPDATE INFORMATIONS
+    SET INFORMATIONS."TEXT" = p_text,INFORMATIONS."INSERT_DATE" = current_timestamp,INFORMATIONS."END_DATE" = TO_TIMESTAMP(p_date,'RR/MM/DD HH24:MI:SSXFF'),INFORMATIONS."STATUS" = p_status
+    WHERE INFORMATIONS."TEXT" = p_target;
+END EDIT_INFORMATION;
 
 /
 --------------------------------------------------------
@@ -899,6 +1151,90 @@ set define off;
     SET RULES."Rule" = TO_CLOB(txt)
     WHERE RULES."id" = 1;
   END;
+
+/
+--------------------------------------------------------
+--  DDL for Function CREATE_RESERVATION
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE FUNCTION "RAILWAY"."CREATE_RESERVATION" 
+(
+  r_user_ID IN RESERVATIONS."RESERVATION_ID"%TYPE,
+  r_cost IN RESERVATIONS."COST"%TYPE
+)RETURN NUMBER AS
+  r_ID NUMBER;
+  r_date RESERVATIONS."DATE"%TYPE;
+BEGIN
+
+  SELECT SYSDATE into r_date from dual;
+  r_ID := seq_reservations.nextval;
+  
+      INSERT INTO RESERVATIONS ("RESERVATION_ID", "USER_ID", "COST", "DATE", "STATUS") values
+      (r_ID,r_user_ID, r_cost,r_date,'nieoplacono');
+      
+  RETURN  r_ID;
+END CREATE_RESERVATION;
+
+/
+--------------------------------------------------------
+--  DDL for Function CREATE_USER
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE FUNCTION "RAILWAY"."CREATE_USER" (
+  usr_name in USERS.NAME%TYPE,
+  usr_last_name in USERS.LAST_NAME%TYPE,
+  usr_email in USERS.EMAIL%TYPE,
+  usr_password in USERS.PASSWORD%TYPE,
+  usr_address in USERS.ADDRESS%TYPE,
+  usr_phone_number in USERS.PHONE_NUMBER%TYPE
+)RETURN NUMBER AS
+  u_ID NUMBER;
+  usr_date USERS.DATE_OF_REGISTRATION%TYPE;
+  usr_id  USERS.USER_ID%TYPE;
+  
+  BEGIN
+  SELECT SYSDATE into usr_date from dual;
+  
+  
+  Select min("unused_id") into usr_id from unused_id;
+  
+  IF usr_id is null then
+      Select max(user_id) into usr_id from users ;
+      usr_id := usr_id +1;
+  ELSE
+      DELETE FROM UNUSED_ID WHERE "unused_id" = usr_id;
+  END IF;
+
+  INSERT INTO USERS 
+  ( USER_ID, NAME, LAST_NAME, EMAIL, ADDRESS, DATE_OF_REGISTRATION, PASSWORD, PHONE_NUMBER) values
+  ( usr_id,usr_name, usr_last_name,usr_email,usr_address,usr_date, usr_password,usr_phone_number);
+    u_ID:= usr_id;
+    RETURN  u_ID;
+END create_user;
+
+/
+--------------------------------------------------------
+--  DDL for Function GET_RELATIONS_DATA
+--------------------------------------------------------
+
+  CREATE OR REPLACE EDITIONABLE FUNCTION "RAILWAY"."GET_RELATIONS_DATA" 
+(
+  r_user_ID IN RESERVATIONS."RESERVATION_ID"%TYPE
+)RETURN VARCHAR2 AS
+ dat VARCHAR2(32767);
+ 
+ reservation_ID RESERVATIONS.RESERVATION_ID%TYPE;
+ ticket_ID TICKETS."TICKET_ID"%TYPE;
+
+BEGIN
+    SELECT r."RESERVATION_ID" into reservation_ID from RESERVATIONS r WHERE r."USER_ID" = r_user_ID;
+    
+    SELECT t."TICKET_ID" into ticket_ID from TICKETS t WHERE t."RESERVATION_ID" = reservation_ID;
+    
+    dat := 'fff';
+    RETURN dat;
+
+END GET_RELATIONS_DATA;
 
 /
 --------------------------------------------------------
@@ -960,11 +1296,14 @@ set define off;
 
   ALTER TABLE "RAILWAY"."RESERVATIONS" ADD PRIMARY KEY ("RESERVATION_ID")
   USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS"  ENABLE;
   ALTER TABLE "RAILWAY"."RESERVATIONS" MODIFY ("DATE" NOT NULL ENABLE);
   ALTER TABLE "RAILWAY"."RESERVATIONS" MODIFY ("COST" NOT NULL ENABLE);
   ALTER TABLE "RAILWAY"."RESERVATIONS" MODIFY ("USER_ID" NOT NULL ENABLE);
-  ALTER TABLE "RAILWAY"."RESERVATIONS" MODIFY ("TICKET_ID" NOT NULL ENABLE);
+  ALTER TABLE "RAILWAY"."RESERVATIONS" MODIFY ("STATUS" NOT NULL ENABLE);
 --------------------------------------------------------
 --  Constraints for Table TICKETS
 --------------------------------------------------------
@@ -1009,6 +1348,17 @@ set define off;
 
   ALTER TABLE "RAILWAY"."UNUSED_ID" MODIFY ("unused_id" NOT NULL ENABLE);
 --------------------------------------------------------
+--  Constraints for Table TRAINS
+--------------------------------------------------------
+
+  ALTER TABLE "RAILWAY"."TRAINS" MODIFY ("NAME" NOT NULL ENABLE);
+  ALTER TABLE "RAILWAY"."TRAINS" ADD PRIMARY KEY ("TRAIN_ID")
+  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
+  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
+  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
+  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
+  TABLESPACE "USERS"  ENABLE;
+--------------------------------------------------------
 --  Constraints for Table RELATIONS
 --------------------------------------------------------
 
@@ -1020,17 +1370,6 @@ set define off;
   TABLESPACE "USERS"  ENABLE;
   ALTER TABLE "RAILWAY"."RELATIONS" MODIFY ("STATION_ID_TO" NOT NULL ENABLE);
   ALTER TABLE "RAILWAY"."RELATIONS" MODIFY ("STATION_ID_FROM" NOT NULL ENABLE);
---------------------------------------------------------
---  Constraints for Table TRAINS
---------------------------------------------------------
-
-  ALTER TABLE "RAILWAY"."TRAINS" MODIFY ("NAME" NOT NULL ENABLE);
-  ALTER TABLE "RAILWAY"."TRAINS" ADD PRIMARY KEY ("TRAIN_ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
-  STORAGE(INITIAL 65536 NEXT 1048576 MINEXTENTS 1 MAXEXTENTS 2147483645
-  PCTINCREASE 0 FREELISTS 1 FREELIST GROUPS 1
-  BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
-  TABLESPACE "USERS"  ENABLE;
 --------------------------------------------------------
 --  Constraints for Table USERS
 --------------------------------------------------------
@@ -1108,3 +1447,5 @@ set define off;
 	  REFERENCES "RAILWAY"."CARRIAGES" ("CARRIAGE_ID") ENABLE;
   ALTER TABLE "RAILWAY"."TICKETS" ADD CONSTRAINT "EXEC_RELATION_ID" FOREIGN KEY ("EXEC_RELATION_ID")
 	  REFERENCES "RAILWAY"."EXECUTE_RELATIONS" ("EXEC_RELATION_ID") ENABLE;
+  ALTER TABLE "RAILWAY"."TICKETS" ADD CONSTRAINT "reservation_ref" FOREIGN KEY ("RESERVATION_ID")
+	  REFERENCES "RAILWAY"."RESERVATIONS" ("RESERVATION_ID") ENABLE;
