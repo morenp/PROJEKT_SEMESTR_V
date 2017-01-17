@@ -1,5 +1,5 @@
 --------------------------------------------------------
---  File created - poniedzia³ek-stycznia-16-2017   
+--  File created - wtorek-stycznia-17-2017   
 --------------------------------------------------------
 DROP TABLE "RAILWAY"."CARRIAGES" cascade constraints;
 DROP TABLE "RAILWAY"."DISCOUNT_POLICY" cascade constraints;
@@ -12,7 +12,6 @@ DROP TABLE "RAILWAY"."RULES" cascade constraints;
 DROP TABLE "RAILWAY"."SEATS" cascade constraints;
 DROP TABLE "RAILWAY"."STATIONS" cascade constraints;
 DROP TABLE "RAILWAY"."STATIONS_LIST" cascade constraints;
-DROP TABLE "RAILWAY"."TICKET_RESERVATION" cascade constraints;
 DROP TABLE "RAILWAY"."TICKETS" cascade constraints;
 DROP TABLE "RAILWAY"."TRAINS" cascade constraints;
 DROP TABLE "RAILWAY"."UNUSED_ID" cascade constraints;
@@ -217,20 +216,6 @@ DROP FUNCTION "RAILWAY"."GET_RELATIONS_DATA";
   BUFFER_POOL DEFAULT FLASH_CACHE DEFAULT CELL_FLASH_CACHE DEFAULT)
   TABLESPACE "USERS" ;
 --------------------------------------------------------
---  DDL for Table TICKET_RESERVATION
---------------------------------------------------------
-
-  CREATE TABLE "RAILWAY"."TICKET_RESERVATION" 
-   (	"ID" NUMBER(*,0), 
-	"RESERVATION_ID" NUMBER(*,0), 
-	"TICKET_ID" NUMBER(*,0), 
-	"COST" NUMBER(8,2), 
-	"STATUS" VARCHAR2(30 BYTE)
-   ) SEGMENT CREATION DEFERRED 
-  PCTFREE 10 PCTUSED 40 INITRANS 1 MAXTRANS 255 
- NOCOMPRESS LOGGING
-  TABLESPACE "USERS" ;
---------------------------------------------------------
 --  DDL for Table TICKETS
 --------------------------------------------------------
 
@@ -309,7 +294,7 @@ DROP FUNCTION "RAILWAY"."GET_RELATIONS_DATA";
 --  DDL for Sequence SEQ_EXEC_RELATION
 --------------------------------------------------------
 
-   CREATE SEQUENCE  "RAILWAY"."SEQ_EXEC_RELATION"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 203 CACHE 100 NOORDER  NOCYCLE  NOPARTITION ;
+   CREATE SEQUENCE  "RAILWAY"."SEQ_EXEC_RELATION"  MINVALUE 1 MAXVALUE 9999999999999999999999999999 INCREMENT BY 1 START WITH 303 CACHE 100 NOORDER  NOCYCLE  NOPARTITION ;
 --------------------------------------------------------
 --  DDL for Sequence SEQ_INFORMATION
 --------------------------------------------------------
@@ -329,7 +314,7 @@ DROP FUNCTION "RAILWAY"."GET_RELATIONS_DATA";
 --  DDL for Sequence SEQ_TICKETS
 --------------------------------------------------------
 
-   CREATE SEQUENCE  "RAILWAY"."SEQ_TICKETS"  MINVALUE 1 MAXVALUE 999999 INCREMENT BY 1 START WITH 46 CACHE 20 NOORDER  NOCYCLE  NOPARTITION ;
+   CREATE SEQUENCE  "RAILWAY"."SEQ_TICKETS"  MINVALUE 1 MAXVALUE 999999 INCREMENT BY 1 START WITH 66 CACHE 20 NOORDER  NOCYCLE  NOPARTITION ;
 --------------------------------------------------------
 --  DDL for Sequence SEQ_TRAIN
 --------------------------------------------------------
@@ -412,7 +397,6 @@ REM INSERTING into RAILWAY.RESERVATIONS
 SET DEFINE OFF;
 Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('110','12','39',to_date('17/01/16','RR/MM/DD'),'nieoplacono');
 Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('111','12','30',to_date('17/01/16','RR/MM/DD'),'zrealizowano');
-Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('108','12','39',to_date('17/01/16','RR/MM/DD'),'nieoplacono');
 Insert into RAILWAY.RESERVATIONS (RESERVATION_ID,USER_ID,COST,"DATE",STATUS) values ('109','25','39',to_date('17/01/16','RR/MM/DD'),'nieoplacono');
 REM INSERTING into RAILWAY.RULES
 SET DEFINE OFF;
@@ -1753,15 +1737,13 @@ Insert into RAILWAY.STATIONS_LIST (STATION_ID,DESCRIPTION) values ('16','Stacja 
 Insert into RAILWAY.STATIONS_LIST (STATION_ID,DESCRIPTION) values ('17','Dworzec Warszawa Zachodnia  W 2012 roku dworzec obs³u¿y³ blisko 2 miliony pasa¿erów. Obecnie Warszawa Zachodnia oczekuje na najwiêksze w swojej historii inwestycje.');
 Insert into RAILWAY.STATIONS_LIST (STATION_ID,DESCRIPTION) values ('18','Najwiêksza z osobowych stacji kolejowych we Wroc³awiu, zlokalizowana na osiedlu Huby. Jeden z nielicznych w Polsce dworców kolejowych, który ma halê peronow¹. ');
 Insert into RAILWAY.STATIONS_LIST (STATION_ID,DESCRIPTION) values ('19','Najwiêksza stacja kolejowa w Zielonej Górze, jak równie¿ najwiêksza w województwie lubuskim. Stacja w Zielonej Górze powsta³a w roku 1871, pierwszy poci¹g zatrzyma³ siê tu 1 paŸdziernika 1871. ');
-REM INSERTING into RAILWAY.TICKET_RESERVATION
-SET DEFINE OFF;
 REM INSERTING into RAILWAY.TICKETS
 SET DEFINE OFF;
 Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('5','normalny','30','zarezerwowany',null,'1','4569278','2','1','111');
 Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('1','normalny','39','zarezerwowany',null,'1','4569274','1','1','109');
-Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('2','normalny','39','zarezerwowany',null,'1','4569274','2','1','108');
+Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('2',null,null,'wolny',null,'1','4569274','2','1',null);
 Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('3','normalny','39','zarezerwowany',null,'1','4569274','3','1','110');
-Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('4','ulgowy','15','wolny',null,'1','4569278','1','1',null);
+Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('4',null,null,'wolny',null,'1','4569278','1','1',null);
 Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('6',null,null,'wolny',null,'1','4569278','3','1',null);
 Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('7',null,null,'wolny',null,'1','4569278','4','1',null);
 Insert into RAILWAY.TICKETS (TICKET_ID,TYPE,PRICE,STATUS,VALID_TILL,EXEC_RELATION_ID,CARRIAGE_ID,SEAT_NUMBER,COMPARTMENT_NUMBER,RESERVATION_ID) values ('8',null,null,'wolny',null,'1','4569278','5','1',null);
@@ -1909,11 +1891,11 @@ set define off;
   relation  RELATIONS.RELATION_ID%TYPE;
   train TRAINS.TRAIN_id%TYPE;
   id_exec NUMBER;
-    carriage_index INTEGER; --carriages.carriage_ID%TYPE;
+    carriage_index  carriages.carriage_ID%TYPE;
   carriage_amount INTEGER;
-    compartment_index INTEGER; --carriages.carriage_ID%TYPE;
+    compartment_index carriages.carriage_ID%TYPE;
   compartment_amount INTEGER;
-    seat_index INTEGER;--carriages.carriage_ID%TYPE;
+    seat_index carriages.carriage_ID%TYPE;
   seat_amount INTEGER;
   ----------- KURSOR DLA POBRANIA RELACJI ----------------
   CURSOR c_relation IS 
@@ -1958,16 +1940,16 @@ TO_DATE(p_date, 'RR/MM/DD'));
   select count(distinct seat_number) into seat_amount from seats where carriage_id=carriage_index;
   seat_index:=1;
  
-   DBMS_OUTPUT.PUT_LINE('carriage_index:' +carriage_index );
-   DBMS_OUTPUT.PUT_LINE('compartment_index:' +compartment_index );
-   DBMS_OUTPUT.PUT_LINE('seat_index:' +seat_index );
+  -- DBMS_OUTPUT.PUT_LINE('carriage_index:' +carriage_index );
+  -- DBMS_OUTPUT.PUT_LINE('compartment_index:' +compartment_index );
+  -- DBMS_OUTPUT.PUT_LINE('seat_index:' +seat_index );
   
 FOR carriage_index IN 1..carriage_amount LOOP
 
   FOR compartment_index IN 1..compartment_amount LOOP
     FOR seat_index IN 1..seat_amount LOOP   
     
-     DBMS_OUTPUT.PUT_LINE('innn: ' ||carriage_index);
+     --DBMS_OUTPUT.PUT_LINE('innn: ' ||carriage_index);
       INSERT INTO TICKETS (TICKET_ID,EXEC_RELATION_ID, SEAT_NUMBER,COMPARTMENT_NUMBER,CARRIAGE_ID) values
      (seq_tickets.nextval,id_exec,seat_index,compartment_index,carriage_index);
      
@@ -2298,17 +2280,6 @@ END GET_RELATIONS_DATA;
   ALTER TABLE "RAILWAY"."EXECUTE_RELATIONS" MODIFY ("RELATION_ID" NOT NULL ENABLE);
   ALTER TABLE "RAILWAY"."EXECUTE_RELATIONS" MODIFY ("TRAIN_ID" NOT NULL ENABLE);
 --------------------------------------------------------
---  Constraints for Table TICKET_RESERVATION
---------------------------------------------------------
-
-  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" ADD PRIMARY KEY ("ID")
-  USING INDEX PCTFREE 10 INITRANS 2 MAXTRANS 255 COMPUTE STATISTICS 
-  TABLESPACE "USERS"  ENABLE;
-  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("STATUS" NOT NULL ENABLE);
-  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("COST" NOT NULL ENABLE);
-  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("TICKET_ID" NOT NULL ENABLE);
-  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" MODIFY ("RESERVATION_ID" NOT NULL ENABLE);
---------------------------------------------------------
 --  Constraints for Table RESERVATIONS
 --------------------------------------------------------
 
@@ -2449,14 +2420,6 @@ END GET_RELATIONS_DATA;
 
   ALTER TABLE "RAILWAY"."SEATS" ADD CONSTRAINT "CARRIAGE_ID" FOREIGN KEY ("CARRIAGE_ID")
 	  REFERENCES "RAILWAY"."CARRIAGES" ("CARRIAGE_ID") ENABLE;
---------------------------------------------------------
---  Ref Constraints for Table TICKET_RESERVATION
---------------------------------------------------------
-
-  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" ADD CONSTRAINT "RESERVATION_TICKET_RESERVATION" FOREIGN KEY ("RESERVATION_ID")
-	  REFERENCES "RAILWAY"."RESERVATIONS" ("RESERVATION_ID") ENABLE;
-  ALTER TABLE "RAILWAY"."TICKET_RESERVATION" ADD CONSTRAINT "TICKET_RESERVATION_TICKET" FOREIGN KEY ("TICKET_ID")
-	  REFERENCES "RAILWAY"."TICKETS" ("TICKET_ID") ENABLE;
 --------------------------------------------------------
 --  Ref Constraints for Table TICKETS
 --------------------------------------------------------
